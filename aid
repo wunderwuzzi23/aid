@@ -11,18 +11,23 @@ from pathlib import Path
 from collections import defaultdict
 import mimetypes
 import json
-import csv
+import unicodedata
 
 
 # Invisible Unicode Characters to detect
 INVISIBLE_CHARS = {
+    # Format controls and joiners
+    '\u034F': 'COMBINING GRAPHEME JOINER',
+    '\u061C': 'ARABIC LETTER MARK',
+    '\u180E': 'MONGOLIAN VOWEL SEPARATOR',
+
     # Zero-width characters
     '\u200B': 'ZERO WIDTH SPACE',
     '\u200C': 'ZERO WIDTH NON-JOINER',
     '\u200D': 'ZERO WIDTH JOINER',
-    '\uFEFF': 'ZERO WIDTH NO-BREAK SPACE',
+    '\u2060': 'WORD JOINER',
 
-    # Directional marks
+    # Directional/bidi marks
     '\u200E': 'LEFT-TO-RIGHT MARK',
     '\u200F': 'RIGHT-TO-LEFT MARK',
     '\u202A': 'LEFT-TO-RIGHT EMBEDDING',
@@ -34,7 +39,23 @@ INVISIBLE_CHARS = {
     '\u2067': 'RIGHT-TO-LEFT ISOLATE',
     '\u2068': 'FIRST STRONG ISOLATE',
     '\u2069': 'POP DIRECTIONAL ISOLATE',
-    '\u061C': 'ARABIC LETTER MARK',
+
+    # Invisible operators (math/layout)
+    '\u2061': 'FUNCTION APPLICATION',
+    '\u2062': 'INVISIBLE TIMES',
+    '\u2063': 'INVISIBLE SEPARATOR',
+    '\u2064': 'INVISIBLE PLUS',
+
+    # Deprecated format controls
+    '\u206A': 'INHIBIT SYMMETRIC SWAPPING',
+    '\u206B': 'ACTIVATE SYMMETRIC SWAPPING',
+    '\u206C': 'INHIBIT ARABIC FORM SHAPING',
+    '\u206D': 'ACTIVATE ARABIC FORM SHAPING',
+    '\u206E': 'NATIONAL DIGIT SHAPES',
+    '\u206F': 'NOMINAL DIGIT SHAPES',
+
+    # BOM/ZWNBSP
+    '\uFEFF': 'ZERO WIDTH NO-BREAK SPACE',
 
     # Variation selectors
     '\uFE00': 'VARIATION SELECTOR-1',
@@ -55,10 +76,48 @@ INVISIBLE_CHARS = {
     '\uFE0F': 'VARIATION SELECTOR-16',
 }
 
+# Optional confusable/suspicious spaces and fillers (off by default).
+CONFUSABLE_SPACE_CHARS = {
+    '\u00A0': 'NO-BREAK SPACE',
+    '\u00AD': 'SOFT HYPHEN',
+    '\u2000': 'EN QUAD',
+    '\u2001': 'EM QUAD',
+    '\u2002': 'EN SPACE',
+    '\u2003': 'EM SPACE',
+    '\u2004': 'THREE-PER-EM SPACE',
+    '\u2005': 'FOUR-PER-EM SPACE',
+    '\u2006': 'SIX-PER-EM SPACE',
+    '\u2007': 'FIGURE SPACE',
+    '\u2008': 'PUNCTUATION SPACE',
+    '\u2009': 'THIN SPACE',
+    '\u200A': 'HAIR SPACE',
+    '\u202F': 'NARROW NO-BREAK SPACE',
+    '\u205F': 'MEDIUM MATHEMATICAL SPACE',
+    '\u2800': 'BRAILLE PATTERN BLANK',
+    '\u3000': 'IDEOGRAPHIC SPACE',
+    '\u3164': 'HANGUL FILLER',
+    '\uFFA0': 'HALFWIDTH HANGUL FILLER',
+}
+
 # Unicode tag characters (U+E0000 to U+E007F)
 # These can be decoded to ASCII
 TAG_START = 0xE0000
 TAG_END = 0xE007F
+VARIATION_SELECTOR_SUPPLEMENT_START = 0xE0100
+VARIATION_SELECTOR_SUPPLEMENT_END = 0xE01EF
+
+# Category sets for summary breakdown
+ZERO_WIDTH_CHARS = {'\u034F', '\u180E', '\u200B', '\u200C', '\u200D', '\u2060', '\uFEFF'}
+DIRECTIONAL_MARKS = {'\u061C', '\u200E', '\u200F', '\u202A', '\u202B', '\u202C',
+                     '\u202D', '\u202E', '\u2066', '\u2067', '\u2068', '\u2069'}
+INVISIBLE_OPERATORS = {'\u2061', '\u2062', '\u2063', '\u2064'}
+DEPRECATED_FORMAT_CONTROLS = {'\u206A', '\u206B', '\u206C', '\u206D', '\u206E', '\u206F'}
+SPACE_LIKE_CHARS = {'\u00A0', '\u00AD', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004',
+                    '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u202F',
+                    '\u205F', '\u2800', '\u3000', '\u3164', '\uFFA0'}
+VARIATION_SELECTORS_BASIC = {chr(cp) for cp in range(0xFE00, 0xFE10)}
+SKIP_CC_DEFAULT = {'\t', '\n', '\r'}
+SKIP_ZS_DEFAULT = {' '}
 
 # Directories to exclude from scanning (add more as needed)
 EXCLUDED_DIRS = [
@@ -72,6 +131,34 @@ def is_unicode_tag(char):
     """Check if a character is a Unicode tag character."""
     code = ord(char)
     return TAG_START <= code <= TAG_END
+
+
+def is_variation_selector_supplement(char):
+    """Check if a character is in Variation Selectors Supplement."""
+    code = ord(char)
+    return VARIATION_SELECTOR_SUPPLEMENT_START <= code <= VARIATION_SELECTOR_SUPPLEMENT_END
+
+
+def variation_selector_name(char):
+    """Name for VS-17 through VS-256."""
+    return f"VARIATION SELECTOR-{ord(char) - VARIATION_SELECTOR_SUPPLEMENT_START + 17}"
+
+
+def control_char_name(char):
+    """Readable label for control characters."""
+    code = ord(char)
+    try:
+        return unicodedata.name(char)
+    except ValueError:
+        return f"CONTROL CHARACTER U+{code:04X}"
+
+
+def zs_char_name(char):
+    """Readable label for space separators."""
+    try:
+        return unicodedata.name(char)
+    except ValueError:
+        return f"SPACE SEPARATOR U+{ord(char):04X}"
 
 
 def decode_unicode_tag(char):
@@ -134,7 +221,7 @@ def group_consecutive_chars(line_findings):
     return grouped
 
 
-def scan_file(file_path):
+def scan_file(file_path, include_cc=False, include_zs=False, include_confusable_spaces=False):
     """
     Scan a file for invisible unicode characters.
     Returns a list of findings.
@@ -155,6 +242,20 @@ def scan_file(file_path):
                             'position': i,
                             'type': 'invisible'
                         })
+                    elif include_confusable_spaces and char in CONFUSABLE_SPACE_CHARS:
+                        line_findings.append({
+                            'char': char,
+                            'name': CONFUSABLE_SPACE_CHARS[char],
+                            'position': i,
+                            'type': 'space_like'
+                        })
+                    elif is_variation_selector_supplement(char):
+                        line_findings.append({
+                            'char': char,
+                            'name': variation_selector_name(char),
+                            'position': i,
+                            'type': 'invisible'
+                        })
                     elif is_unicode_tag(char):
                         line_findings.append({
                             'char': char,
@@ -162,6 +263,20 @@ def scan_file(file_path):
                             'decoded': decode_unicode_tag(char),
                             'position': i,
                             'type': 'tag'
+                        })
+                    elif include_cc and unicodedata.category(char) == 'Cc' and char not in SKIP_CC_DEFAULT:
+                        line_findings.append({
+                            'char': char,
+                            'name': control_char_name(char),
+                            'position': i,
+                            'type': 'cc'
+                        })
+                    elif include_zs and unicodedata.category(char) == 'Zs' and char not in SKIP_ZS_DEFAULT:
+                        line_findings.append({
+                            'char': char,
+                            'name': zs_char_name(char),
+                            'position': i,
+                            'type': 'zs'
                         })
 
                 if line_findings:
@@ -180,7 +295,7 @@ def scan_file(file_path):
     return findings
 
 
-def get_context_display(line, char_groups, context_chars=2):
+def get_context_display(line, char_groups, context_chars=2, consecutive_threshold=10):
     """Generate a context display showing where invisible characters are."""
     result = []
 
@@ -232,37 +347,48 @@ def get_context_display(line, char_groups, context_chars=2):
                 # Show decoded text for tag groups
                 decoded_text = ''.join(c.get('decoded', '') for c in group)
                 hex_range = f"0x{ord(group[0]['char']):04X}-0x{ord(group[-1]['char']):04X}"
-                result.append(f"    Consecutive UNICODE TAGS ({len(group)} chars, {hex_range}) = '{decoded_text}'")
+                prefix = "⚠ " if len(group) >= consecutive_threshold else ""
+                result.append(
+                    f"    {prefix}Consecutive UNICODE TAGS ({len(group)} chars, {hex_range}) = '{decoded_text}'"
+                )
             else:
                 # Mixed group - show each char
                 char_list = []
                 for c in group:
                     char_desc = f"{c['name']} (0x{ord(c['char']):04X})"
                     char_list.append(char_desc)
-                result.append(f"    Consecutive group ({len(group)} chars): {', '.join(char_list)}")
+                prefix = "⚠ " if len(group) >= consecutive_threshold else ""
+                result.append(f"    {prefix}Consecutive group ({len(group)} chars): {', '.join(char_list)}")
 
             result.append(f"    Context: ...{context}...")
 
     return '\n'.join(result)
 
 
-def calculate_suspicion_level(findings):
+def calculate_suspicion_level(findings, consecutive_threshold=10):
     """
     Calculate suspicion level based on invisible code points found.
 
     Returns a dict with:
     - total_code_points: total count of invisible code points
     - unique_code_points: count of unique invisible characters
+    - max_consecutive_code_points: largest consecutive run of invisible code points
+    - max_consecutive_unicode_tags: largest consecutive run consisting only of Unicode tags
     - suspicion_level: info, low, high, or critical
     - reason: explanation of the assessment
     """
     # Count total code points
     total_code_points = 0
     unique_chars = set()
+    max_consecutive_code_points = 0
+    max_consecutive_unicode_tags = 0
 
     for finding in findings:
         for group in finding['char_groups']:
             total_code_points += len(group)
+            max_consecutive_code_points = max(max_consecutive_code_points, len(group))
+            if all(c['type'] == 'tag' for c in group):
+                max_consecutive_unicode_tags = max(max_consecutive_unicode_tags, len(group))
             for char_info in group:
                 unique_chars.add(char_info['char'])
 
@@ -282,9 +408,24 @@ def calculate_suspicion_level(findings):
         level = "critical"
         reason = "Excessive code points"
 
+    # Escalate based on long consecutive runs of invisible code points.
+    # Unicode-tag-only runs are additionally highlighted because they are
+    # commonly used for hidden payload encoding.
+    if max_consecutive_code_points >= consecutive_threshold:
+        if level == "info":
+            level = "low"
+        reason = f"Long consecutive invisible run ({max_consecutive_code_points} code points)"
+        if max_consecutive_unicode_tags >= consecutive_threshold:
+            if level in ("info", "low"):
+                level = "high"
+            reason += f"; includes Unicode tag run ({max_consecutive_unicode_tags} tags)"
+
     return {
         'total_code_points': total_code_points,
         'unique_code_points': unique_code_points,
+        'max_consecutive_code_points': max_consecutive_code_points,
+        'max_consecutive_unicode_tags': max_consecutive_unicode_tags,
+        'consecutive_threshold': consecutive_threshold,
         'suspicion_level': level,
         'reason': reason
     }
@@ -292,9 +433,21 @@ def calculate_suspicion_level(findings):
 
 class DirectoryScanner:
     """Scanner that can stream results and track stats."""
-    def __init__(self, target_dir, verbose=False):
+    def __init__(
+        self,
+        target_dir,
+        verbose=False,
+        consecutive_threshold=10,
+        include_cc=False,
+        include_zs=False,
+        include_confusable_spaces=False
+    ):
         self.target_dir = Path(target_dir).resolve()
         self.verbose = verbose
+        self.consecutive_threshold = consecutive_threshold
+        self.include_cc = include_cc
+        self.include_zs = include_zs
+        self.include_confusable_spaces = include_confusable_spaces
         self.stats = {
             'files_scanned': 0,
             'files_with_findings': 0,
@@ -325,7 +478,12 @@ class DirectoryScanner:
 
                 self.stats['files_scanned'] += 1
 
-                findings = scan_file(file_path)
+                findings = scan_file(
+                    file_path,
+                    include_cc=self.include_cc,
+                    include_zs=self.include_zs,
+                    include_confusable_spaces=self.include_confusable_spaces
+                )
 
                 if isinstance(findings, dict) and 'error' in findings:
                     continue
@@ -340,7 +498,7 @@ class DirectoryScanner:
                     file_size = file_path.stat().st_size
 
                     # Calculate suspicion level
-                    suspicion = calculate_suspicion_level(findings)
+                    suspicion = calculate_suspicion_level(findings, consecutive_threshold=self.consecutive_threshold)
 
                     result = {
                         'file_path': str(file_path.relative_to(self.target_dir)),
@@ -354,192 +512,90 @@ class DirectoryScanner:
                     yield result
 
 
-def scan_directory(target_dir, verbose=False):
+def scan_directory(
+    target_dir,
+    verbose=False,
+    consecutive_threshold=10,
+    include_cc=False,
+    include_zs=False,
+    include_confusable_spaces=False
+):
     """Scan directory and return all results (backward compatibility)."""
-    scanner = DirectoryScanner(target_dir, verbose)
+    scanner = DirectoryScanner(
+        target_dir,
+        verbose,
+        consecutive_threshold=consecutive_threshold,
+        include_cc=include_cc,
+        include_zs=include_zs,
+        include_confusable_spaces=include_confusable_spaces
+    )
     for _ in scanner.scan():
         pass  # Consume generator to populate results
     return scanner.results, scanner.stats
 
 
+def summarize_chars(findings):
+    """Return per-character counts sorted by frequency then name."""
+    counts = defaultdict(int)
+    for finding in findings:
+        for group in finding['char_groups']:
+            for char_info in group:
+                counts[char_info['name']] += 1
+    return sorted(counts.items(), key=lambda x: (-x[1], x[0]))
+
+
+def build_file_report_rows(results):
+    """Build compact one-row-per-file report data."""
+    rows = []
+    for file_path, data in sorted(results.items()):
+        suspicion = data['suspicion']
+        char_summary = summarize_chars(data['findings'])
+        char_list = '; '.join(f"{name} ({count})" for name, count in char_summary)
+
+        rows.append({
+            'file_path': file_path,
+            'file_size_bytes': data['file_size'],
+            'suspicion_level': suspicion['suspicion_level'],
+            'total_invisible_code_points': suspicion['total_code_points'],
+            'unique_invisible_code_points': suspicion['unique_code_points'],
+            'invisible_chars': char_list,
+            'longest_consecutive_run': suspicion.get('max_consecutive_code_points', 0),
+            'longest_unicode_tag_run': suspicion.get('max_consecutive_unicode_tags', 0),
+            'notes': suspicion['reason']
+        })
+    return rows
+
+
 def generate_report(results, stats, target_dir):
-    """Generate the audit report."""
+    """Generate a compact text report with one line per file."""
     lines = []
-    lines.append("=" * 80)
     lines.append("ASCII SMUGGLING DETECTION REPORT")
-    lines.append("=" * 80)
-    lines.append(f"\nTarget Directory: {target_dir}")
+    lines.append(f"Target Directory: {target_dir}")
     lines.append(f"Files Scanned: {stats['files_scanned']}")
     lines.append(f"Binary Files Skipped: {stats['skipped_binary']}")
-    lines.append("")
 
     if not results:
         lines.append("✓ No invisible unicode characters detected.")
-        lines.append("")
         return '\n'.join(lines)
 
-    # Summary
-    lines.append(f"⚠ FINDINGS DETECTED")
-    lines.append(f"Files with Issues: {stats['files_with_findings']}")
-    lines.append(f"Total Invisible Code Points Found: {stats['total_invisible_chars']}")
+    lines.append(f"Files with Findings: {stats['files_with_findings']}")
+    lines.append(f"Total Invisible Code Points: {stats['total_invisible_chars']}")
     lines.append("")
-    lines.append("=" * 80)
-    lines.append("")
-
-    # Detailed findings
-    for file_path in sorted(results.keys()):
-        data = results[file_path]
-        findings = data['findings']
-        suspicion = data['suspicion']
-
-        # Suspicion indicator
-        level_indicator = {
-            'info': '🔵',
-            'low': '🟢',
-            'high': '🟠',
-            'critical': '🔴'
-        }
-        indicator = level_indicator.get(suspicion['suspicion_level'], '⚪')
-
-        lines.append(f"📄 {file_path} {indicator} {suspicion['suspicion_level'].upper()}")
-        lines.append(f"   File Size: {data['file_size']} bytes")
-        lines.append(f"   Invisible Code Points: {suspicion['total_code_points']} ({suspicion['unique_code_points']} unique)")
-        lines.append(f"   Assessment: {suspicion['reason']}")
-        lines.append("")
-
-        for finding in findings:
-            line_num = finding['line_num']
-            char_groups = finding['char_groups']
-            line = finding['line']
-
-            # Count total chars across all groups
-            total_chars = sum(len(group) for group in char_groups)
-
-            lines.append(f"  Line {line_num}: {total_chars} invisible character(s) in {len(char_groups)} location(s)")
-            lines.append(get_context_display(line, char_groups))
-            lines.append("")
-
-        lines.append("-" * 80)
-        lines.append("")
-
-    # Character frequency summary
-    char_counts = defaultdict(int)
-    for data in results.values():
-        for finding in data['findings']:
-            for group in finding['char_groups']:
-                for char_info in group:
-                    char_counts[char_info['name']] += 1
-
-    if char_counts:
-        lines.append("CHARACTER FREQUENCY SUMMARY")
-        lines.append("-" * 80)
-        for char_name, count in sorted(char_counts.items(), key=lambda x: -x[1]):
-            lines.append(f"  {char_name}: {count}")
-        lines.append("")
+    lines.append(
+        "file_path | total | unique | chars | longest_run | longest_tag_run | notes"
+    )
+    for row in build_file_report_rows(results):
+        lines.append(
+            f"{row['file_path']} | {row['total_invisible_code_points']} | "
+            f"{row['unique_invisible_code_points']} | {row['invisible_chars']} | "
+            f"{row['longest_consecutive_run']} | {row['longest_unicode_tag_run']} | {row['notes']}"
+        )
 
     return '\n'.join(lines)
 
 
 def generate_json_report(results, stats, target_dir):
-    """Generate JSON format report."""
-    findings_list = []
-    file_assessments = []
-
-    for file_path, data in results.items():
-        suspicion = data['suspicion']
-
-        # Add file-level assessment
-        file_assessments.append({
-            'file_path': file_path,
-            'file_size_bytes': data['file_size'],
-            'total_code_points': suspicion['total_code_points'],
-            'unique_code_points': suspicion['unique_code_points'],
-            'suspicion_level': suspicion['suspicion_level'],
-            'assessment': suspicion['reason']
-        })
-
-        for finding in data['findings']:
-            for group in finding['char_groups']:
-                line = finding['line']
-
-                if len(group) == 1:
-                    # Single character
-                    char_info = group[0]
-                    pos = char_info['position']
-                    context_chars = 2
-                    start = max(0, pos - context_chars)
-                    end = min(len(line), pos + context_chars + 1)
-                    context = line[start:end].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
-
-                    finding_obj = {
-                        'file_path': file_path,
-                        'file_size_bytes': data['file_size'],
-                        'suspicion_level': suspicion['suspicion_level'],
-                        'line_number': finding['line_num'],
-                        'position': char_info['position'],
-                        'consecutive': False,
-                        'char_name': char_info['name'],
-                        'char_code': f"0x{ord(char_info['char']):04X}",
-                        'char_type': char_info['type'],
-                        'context': context
-                    }
-
-                    if char_info['type'] == 'tag':
-                        finding_obj['decoded'] = char_info['decoded']
-
-                    findings_list.append(finding_obj)
-                else:
-                    # Consecutive group
-                    first_pos = group[0]['position']
-                    last_pos = group[-1]['position']
-                    context_chars = 2
-                    start = max(0, first_pos - context_chars)
-                    end = min(len(line), last_pos + context_chars + 1)
-                    context = line[start:end].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
-
-                    # Check if all are unicode tags
-                    all_tags = all(c['type'] == 'tag' for c in group)
-
-                    finding_obj = {
-                        'file_path': file_path,
-                        'file_size_bytes': data['file_size'],
-                        'suspicion_level': suspicion['suspicion_level'],
-                        'line_number': finding['line_num'],
-                        'position_start': first_pos,
-                        'position_end': last_pos,
-                        'consecutive': True,
-                        'group_size': len(group),
-                        'context': context
-                    }
-
-                    if all_tags:
-                        # For tag groups, show decoded text
-                        decoded_text = ''.join(c.get('decoded', '') for c in group)
-                        finding_obj['char_type'] = 'tag'
-                        finding_obj['char_name'] = 'UNICODE TAGS'
-                        finding_obj['char_code_range'] = f"0x{ord(group[0]['char']):04X}-0x{ord(group[-1]['char']):04X}"
-                        finding_obj['decoded'] = decoded_text
-                    else:
-                        # Mixed group - list individual chars
-                        chars_in_group = []
-                        for c in group:
-                            char_obj = {
-                                'char_name': c['name'],
-                                'char_code': f"0x{ord(c['char']):04X}",
-                                'char_type': c['type']
-                            }
-                            chars_in_group.append(char_obj)
-                        finding_obj['chars'] = chars_in_group
-
-                    findings_list.append(finding_obj)
-
-    # Character frequency
-    char_counts = defaultdict(int)
-    for data in results.values():
-        for finding in data['findings']:
-            for group in finding['char_groups']:
-                for char_info in group:
-                    char_counts[char_info['name']] += 1
+    """Generate compact JSON format report (one object per file)."""
 
     report = {
         'metadata': {
@@ -549,16 +605,14 @@ def generate_json_report(results, stats, target_dir):
             'files_with_findings': stats['files_with_findings'],
             'total_invisible_code_points': stats['total_invisible_chars']
         },
-        'file_assessments': file_assessments,
-        'findings': findings_list,
-        'character_frequency': dict(sorted(char_counts.items(), key=lambda x: -x[1]))
+        'files': build_file_report_rows(results)
     }
 
     return json.dumps(report, indent=2, ensure_ascii=False)
 
 
 def generate_csv_report(results, stats, target_dir):
-    """Generate CSV format report."""
+    """Generate compact CSV format report (one row per file)."""
     output = []
 
     # Header
@@ -566,187 +620,65 @@ def generate_csv_report(results, stats, target_dir):
         'file_path',
         'file_size_bytes',
         'suspicion_level',
-        'total_code_points',
-        'unique_code_points',
-        'assessment',
-        'line_number',
-        'position',
-        'consecutive',
-        'group_size',
-        'chars',
-        'context'
+        'total_invisible_code_points',
+        'unique_invisible_code_points',
+        'invisible_chars',
+        'longest_consecutive_run',
+        'longest_unicode_tag_run',
+        'notes'
     ]
     output.append(','.join(header))
 
-    # Data rows
-    for file_path, data in sorted(results.items()):
-        suspicion = data['suspicion']
+    for row_data in build_file_report_rows(results):
+        row = [
+            row_data['file_path'],
+            str(row_data['file_size_bytes']),
+            row_data['suspicion_level'],
+            str(row_data['total_invisible_code_points']),
+            str(row_data['unique_invisible_code_points']),
+            row_data['invisible_chars'],
+            str(row_data['longest_consecutive_run']),
+            str(row_data['longest_unicode_tag_run']),
+            row_data['notes']
+        ]
 
-        for finding in data['findings']:
-            for group in finding['char_groups']:
-                line = finding['line']
+        escaped_row = []
+        for field in row:
+            if ',' in field or '"' in field or '\n' in field:
+                field = '"' + field.replace('"', '""') + '"'
+            escaped_row.append(field)
 
-                if len(group) == 1:
-                    # Single character
-                    char_info = group[0]
-                    pos = char_info['position']
-                    context_chars = 2
-                    start = max(0, pos - context_chars)
-                    end = min(len(line), pos + context_chars + 1)
-                    context = line[start:end].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
-
-                    # Format char info
-                    char_desc = f"{char_info['name']} (0x{ord(char_info['char']):04X})"
-                    if char_info['type'] == 'tag':
-                        char_desc += f" = {char_info['decoded']}"
-
-                    row = [
-                        file_path,
-                        str(data['file_size']),
-                        suspicion['suspicion_level'],
-                        str(suspicion['total_code_points']),
-                        str(suspicion['unique_code_points']),
-                        suspicion['reason'],
-                        str(finding['line_num']),
-                        str(pos),
-                        'no',
-                        '1',
-                        char_desc,
-                        context
-                    ]
-                else:
-                    # Consecutive group
-                    first_pos = group[0]['position']
-                    last_pos = group[-1]['position']
-                    context_chars = 2
-                    start = max(0, first_pos - context_chars)
-                    end = min(len(line), last_pos + context_chars + 1)
-                    context = line[start:end].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
-
-                    # Check if all are unicode tags
-                    all_tags = all(c['type'] == 'tag' for c in group)
-
-                    if all_tags:
-                        # Show decoded text for tag groups
-                        decoded_text = ''.join(c.get('decoded', '') for c in group)
-                        hex_range = f"0x{ord(group[0]['char']):04X}-0x{ord(group[-1]['char']):04X}"
-                        char_desc = f"UNICODE TAGS ({hex_range}) = {decoded_text}"
-                    else:
-                        # Mixed group - show each char
-                        char_descs = []
-                        for c in group:
-                            desc = f"{c['name']} (0x{ord(c['char']):04X})"
-                            char_descs.append(desc)
-                        char_desc = '; '.join(char_descs)
-
-                    row = [
-                        file_path,
-                        str(data['file_size']),
-                        suspicion['suspicion_level'],
-                        str(suspicion['total_code_points']),
-                        str(suspicion['unique_code_points']),
-                        suspicion['reason'],
-                        str(finding['line_num']),
-                        f"{first_pos}-{last_pos}",
-                        'yes',
-                        str(len(group)),
-                        char_desc,
-                        context
-                    ]
-
-                # CSV escape (quote fields that contain commas, quotes, or newlines)
-                escaped_row = []
-                for field in row:
-                    if ',' in field or '"' in field or '\n' in field:
-                        field = '"' + field.replace('"', '""') + '"'
-                    escaped_row.append(field)
-
-                output.append(','.join(escaped_row))
+        output.append(','.join(escaped_row))
 
     return '\n'.join(output)
 
 
 def write_csv_row(f, file_path, data):
-    """Write a single result as CSV rows to file handle."""
+    """Write a single compact CSV row for one file."""
     suspicion = data['suspicion']
+    char_summary = summarize_chars(data['findings'])
+    char_list = '; '.join(f"{name} ({count})" for name, count in char_summary)
 
-    for finding in data['findings']:
-        for group in finding['char_groups']:
-            line = finding['line']
+    row = [
+        file_path,
+        str(data['file_size']),
+        suspicion['suspicion_level'],
+        str(suspicion['total_code_points']),
+        str(suspicion['unique_code_points']),
+        char_list,
+        str(suspicion.get('max_consecutive_code_points', 0)),
+        str(suspicion.get('max_consecutive_unicode_tags', 0)),
+        suspicion['reason']
+    ]
 
-            if len(group) == 1:
-                # Single character
-                char_info = group[0]
-                pos = char_info['position']
-                context_chars = 2
-                start = max(0, pos - context_chars)
-                end = min(len(line), pos + context_chars + 1)
-                context = line[start:end].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+    escaped_row = []
+    for field in row:
+        if ',' in field or '"' in field or '\n' in field:
+            field = '"' + field.replace('"', '""') + '"'
+        escaped_row.append(field)
 
-                char_desc = f"{char_info['name']} (0x{ord(char_info['char']):04X})"
-                if char_info['type'] == 'tag':
-                    char_desc += f" = {char_info['decoded']}"
-
-                row = [
-                    file_path,
-                    str(data['file_size']),
-                    suspicion['suspicion_level'],
-                    str(suspicion['total_code_points']),
-                    str(suspicion['unique_code_points']),
-                    suspicion['reason'],
-                    str(finding['line_num']),
-                    str(pos),
-                    'no',
-                    '1',
-                    char_desc,
-                    context
-                ]
-            else:
-                # Consecutive group
-                first_pos = group[0]['position']
-                last_pos = group[-1]['position']
-                context_chars = 2
-                start = max(0, first_pos - context_chars)
-                end = min(len(line), last_pos + context_chars + 1)
-                context = line[start:end].replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
-
-                all_tags = all(c['type'] == 'tag' for c in group)
-
-                if all_tags:
-                    decoded_text = ''.join(c.get('decoded', '') for c in group)
-                    hex_range = f"0x{ord(group[0]['char']):04X}-0x{ord(group[-1]['char']):04X}"
-                    char_desc = f"UNICODE TAGS ({hex_range}) = {decoded_text}"
-                else:
-                    char_descs = []
-                    for c in group:
-                        desc = f"{c['name']} (0x{ord(c['char']):04X})"
-                        char_descs.append(desc)
-                    char_desc = '; '.join(char_descs)
-
-                row = [
-                    file_path,
-                    str(data['file_size']),
-                    suspicion['suspicion_level'],
-                    str(suspicion['total_code_points']),
-                    str(suspicion['unique_code_points']),
-                    suspicion['reason'],
-                    str(finding['line_num']),
-                    f"{first_pos}-{last_pos}",
-                    'yes',
-                    str(len(group)),
-                    char_desc,
-                    context
-                ]
-
-            # CSV escape
-            escaped_row = []
-            for field in row:
-                if ',' in field or '"' in field or '\n' in field:
-                    field = '"' + field.replace('"', '""') + '"'
-                escaped_row.append(field)
-
-            f.write(','.join(escaped_row) + '\n')
-            f.flush()  # Flush after each row for real-time updates
+    f.write(','.join(escaped_row) + '\n')
+    f.flush()
 
 
 def main():
@@ -760,7 +692,7 @@ def main():
     )
     parser.add_argument(
         '--output',
-        help='Output report file path'
+        help='Output report file path (default: ./aid-report.<format>)'
     )
     parser.add_argument(
         '--format',
@@ -778,12 +710,29 @@ def main():
         action='store_true',
         help='Print report to stdout instead of file'
     )
+    parser.add_argument(
+        '--consecutive-threshold',
+        type=int,
+        default=10,
+        help='Escalate risk if there are this many consecutive invisible code points (default: 10)'
+    )
+    parser.add_argument(
+        '--include-cc',
+        action='store_true',
+        help='Also scan for classic control characters (Unicode category Cc; excludes TAB/LF/CR)'
+    )
+    parser.add_argument(
+        '--include-zs',
+        action='store_true',
+        help='Also scan for Unicode space separators (category Zs; excludes ASCII space U+0020)'
+    )
+    parser.add_argument(
+        '--include-confusable-spaces',
+        action='store_true',
+        help='Also scan for confusable/suspicious spaces and fillers (for example U+00A0 NBSP)'
+    )
 
     args = parser.parse_args()
-
-    # Validate arguments
-    if not args.stream and not args.output:
-        parser.error("--output is required unless --stream is specified")
 
     target_dir = Path(args.target)
     if not target_dir.exists():
@@ -797,6 +746,10 @@ def main():
     if not args.verbose:
         print(f"Scanning {target_dir}...")
 
+    if not args.stream and not args.output:
+        extension_map = {'csv': 'csv', 'json': 'json', 'text': 'txt'}
+        args.output = f"aid-report.{extension_map[args.format]}"
+
     # Track if we're using streaming mode
     streaming_mode = not args.stream and args.format == 'csv'
 
@@ -808,15 +761,22 @@ def main():
             # Write CSV header
             header = [
                 'file_path', 'file_size_bytes', 'suspicion_level',
-                'total_code_points', 'unique_code_points', 'assessment',
-                'line_number', 'position', 'consecutive', 'group_size',
-                'chars', 'context'
+                'total_invisible_code_points', 'unique_invisible_code_points',
+                'invisible_chars', 'longest_consecutive_run',
+                'longest_unicode_tag_run', 'notes'
             ]
             f.write(','.join(header) + '\n')
             f.flush()
 
             # Stream results as they're found
-            scanner = DirectoryScanner(target_dir, verbose=args.verbose)
+            scanner = DirectoryScanner(
+                target_dir,
+                verbose=args.verbose,
+                consecutive_threshold=args.consecutive_threshold,
+                include_cc=args.include_cc,
+                include_zs=args.include_zs,
+                include_confusable_spaces=args.include_confusable_spaces
+            )
             for result in scanner.scan():
                 write_csv_row(f, result['file_path'], result)
 
@@ -828,7 +788,14 @@ def main():
 
     else:
         # Buffer mode - for --stream or non-CSV formats
-        results, stats = scan_directory(target_dir, verbose=args.verbose)
+        results, stats = scan_directory(
+            target_dir,
+            verbose=args.verbose,
+            consecutive_threshold=args.consecutive_threshold,
+            include_cc=args.include_cc,
+            include_zs=args.include_zs,
+            include_confusable_spaces=args.include_confusable_spaces
+        )
 
         if args.verbose:
             print("\r" + " " * 80 + "\r", end='', file=sys.stderr)  # Clear progress line
@@ -850,19 +817,16 @@ def main():
     # Calculate character category breakdown
     category_counts = {
         'Unicode Tags': 0,
-        'Zero-Width Chars': 0,
-        'Directional Marks': 0,
+        'Zero-Width And Joiners': 0,
+        'Directional And Bidi Marks': 0,
         'Variation Selectors': 0
     }
-
-    # Define category membership
-    zero_width_chars = {'\u200B', '\u200C', '\u200D', '\uFEFF'}
-    directional_marks = {'\u200E', '\u200F', '\u202A', '\u202B', '\u202C',
-                        '\u202D', '\u202E', '\u2066', '\u2067', '\u2068',
-                        '\u2069', '\u061C'}
-    variation_selectors = {'\uFE00', '\uFE01', '\uFE02', '\uFE03', '\uFE04',
-                          '\uFE05', '\uFE06', '\uFE07', '\uFE08', '\uFE09',
-                          '\uFE0A', '\uFE0B', '\uFE0C', '\uFE0D', '\uFE0E', '\uFE0F'}
+    category_counts['Invisible Operators'] = 0
+    category_counts['Deprecated Format Controls'] = 0
+    category_counts['Space-Like Or Blank Chars'] = 0
+    category_counts['Control Characters (Cc)'] = 0
+    category_counts['Space Separators (Zs)'] = 0
+    category_counts['Other Invisible'] = 0
 
     if results:
         for data in results.values():
@@ -876,18 +840,34 @@ def main():
                         char = char_info['char']
                         if char_info['type'] == 'tag':
                             category_counts['Unicode Tags'] += 1
-                        elif char in zero_width_chars:
-                            category_counts['Zero-Width Chars'] += 1
-                        elif char in directional_marks:
-                            category_counts['Directional Marks'] += 1
-                        elif char in variation_selectors:
+                        elif char in ZERO_WIDTH_CHARS:
+                            category_counts['Zero-Width And Joiners'] += 1
+                        elif char in DIRECTIONAL_MARKS:
+                            category_counts['Directional And Bidi Marks'] += 1
+                        elif char in VARIATION_SELECTORS_BASIC or is_variation_selector_supplement(char):
                             category_counts['Variation Selectors'] += 1
+                        elif char in INVISIBLE_OPERATORS:
+                            category_counts['Invisible Operators'] += 1
+                        elif char in DEPRECATED_FORMAT_CONTROLS:
+                            category_counts['Deprecated Format Controls'] += 1
+                        elif char_info.get('type') == 'space_like':
+                            category_counts['Space-Like Or Blank Chars'] += 1
+                        elif char_info.get('type') == 'cc':
+                            category_counts['Control Characters (Cc)'] += 1
+                        elif char_info.get('type') == 'zs':
+                            category_counts['Space Separators (Zs)'] += 1
+                        else:
+                            category_counts['Other Invisible'] += 1
 
     # Write report or stream to stdout (only if not already written in streaming mode)
     if not streaming_mode:
         if args.stream:
             # Print to stdout
-            print(report)
+            try:
+                print(report)
+            except BrokenPipeError:
+                # Allow piping to commands like `head` without a traceback.
+                return
         else:
             # Write to file
             output_path = Path(args.output)
@@ -895,11 +875,6 @@ def main():
 
     # Show summary stats
     if not args.stream:
-        if streaming_mode:
-            print(f"✓ Report written to {output_path}")
-        else:
-            print(f"✓ Report written to {Path(args.output)}")
-
         print(f"  Files scanned: {stats['files_scanned']}")
         if stats['files_with_findings'] > 0:
             print(f"  ⚠ Files with findings: {stats['files_with_findings']}")
@@ -915,16 +890,24 @@ def main():
 
             # Show category breakdown
             print(f"  📊 By category:")
-            if category_counts['Unicode Tags'] > 0:
-                print(f"    Unicode Tags: {category_counts['Unicode Tags']}")
-            if category_counts['Zero-Width Chars'] > 0:
-                print(f"    Zero-Width Chars: {category_counts['Zero-Width Chars']}")
-            if category_counts['Directional Marks'] > 0:
-                print(f"    Directional Marks: {category_counts['Directional Marks']}")
-            if category_counts['Variation Selectors'] > 0:
-                print(f"    Variation Selectors: {category_counts['Variation Selectors']}")
+            for category_name, count in category_counts.items():
+                if count > 0:
+                    print(f"    {category_name}: {count}")
+            print(f"  ℹ Consecutive threshold: {args.consecutive_threshold}")
+            if args.include_cc:
+                print(f"  ℹ Extra scan enabled: Cc control chars (excluding TAB/LF/CR)")
+            if args.include_zs:
+                print(f"  ℹ Extra scan enabled: Zs space separators (excluding U+0020 SPACE)")
+            if args.include_confusable_spaces:
+                print(f"  ℹ Extra scan enabled: confusable/suspicious spaces and fillers")
+            print(f"  ℹ Reminder: Manually inspect flagged files to verify intent/context.")
         else:
             print(f"  ✓ No invisible code points found")
+
+        if streaming_mode:
+            print(f"✓ Report written to {output_path}")
+        else:
+            print(f"✓ Report written to {Path(args.output)}")
 
 
 if __name__ == '__main__':

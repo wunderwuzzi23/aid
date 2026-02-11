@@ -11,7 +11,7 @@ A tool for detecting invisible Unicode characters in files, designed to identify
 - 📊 **Multiple Output Formats**: CSV (default), JSON, and human-readable text reports
 - ⚡ **Streaming Output**: Low-memory scanning with real-time CSV writing for large directories
 - 🔢 **Unicode Tag Decoding**: Automatically decodes Unicode tag sequences to ASCII
-- 📈 **Detailed Statistics**: Per-file assessments with category breakdowns and suspicion ratings
+- 📈 **Compact Structured Reports**: One line/object per file with counts, char types, longest runs, and notes
 - 🚀 **Fast Scanning**: Skips binary files and excluded directories (configurable)
 
 ## Installation
@@ -25,7 +25,7 @@ cd aid
 chmod +x aid
 
 # Run it
-./aid --target /path/to/scan --output report.csv
+./aid --target /path/to/scan
 ```
 
 **Requirements:** Python 3.6+
@@ -35,11 +35,11 @@ chmod +x aid
 ### Basic Usage
 
 ```bash
-# Scan a directory and output CSV report
-./aid --target ./my-project --output report.csv
+# Scan a directory (writes ./aid-report.csv by default)
+./aid --target ./my-project
 
 # Scan with progress indicator
-./aid --target ./my-project --output report.csv --verbose
+./aid --target ./my-project --verbose
 
 # Output in different formats
 ./aid --target ./my-project --output report.json --format json
@@ -53,10 +53,14 @@ chmod +x aid
 
 ```
 --target PATH          Target directory to scan (required)
---output PATH          Output report file path (required unless --stream)
+--output PATH          Output report file path (default: ./aid-report.<format>)
 --format FORMAT        Output format: csv (default), json, or text
 --verbose              Show progress while scanning
 --stream               Print report to stdout instead of file
+--consecutive-threshold N  Escalate risk if there are N consecutive invisible code points (default: 10)
+--include-cc           Also scan for classic control chars (Cc), excluding TAB/LF/CR
+--include-confusable-spaces  Also scan for confusable/suspicious spaces and fillers (e.g. U+00A0 NBSP)
+--include-zs           Also scan for Unicode space separators (Zs), excluding ASCII space U+0020
 ```
 
 ## Understanding the Output
@@ -70,24 +74,24 @@ AID automatically assesses the severity of findings:
 - 🟠 **HIGH** (50-99 code points): Many invisible characters, suspicious pattern
 - 🔴 **CRITICAL** (≥100 code points): Excessive characters, likely malicious/smuggling
 
-### CSV Output Format
+Additionally, AID escalates risk when it detects long consecutive runs of invisible characters, and it flags when that run is specifically a Unicode tag sequence. Configure this via `--consecutive-threshold`.
+
+### CSV Output Format (Compact)
 
 ```csv
-file_path,file_size_bytes,suspicion_level,total_code_points,unique_code_points,assessment,line_number,position,consecutive,group_size,chars,context
+file_path,file_size_bytes,suspicion_level,total_invisible_code_points,unique_invisible_code_points,invisible_chars,longest_consecutive_run,longest_unicode_tag_run,notes
 ```
 
 **Key Columns:**
-- `consecutive`: "yes" if multiple invisible chars are grouped together
-- `group_size`: Number of characters in the group
-- `chars`: Character descriptions with hex codes (e.g., `UNICODE TAGS (0xE0041-0xE0046) = ABCDEF`)
-- `context`: Surrounding text with invisible chars marked as `⦗...⦘`
+- `invisible_chars`: Character names with counts per file
+- `longest_consecutive_run`: Largest consecutive run of invisible code points in the file
+- `notes`: Short assessment text
 
 ### Example Output
 
 ```bash
-$ ./aid --target ./skills --output report.csv
+$ ./aid --target ./skills
 
-✓ Report written to report.csv
   Files scanned: 42
   ⚠ Files with findings: 3
     🔵 Info: 2
@@ -97,27 +101,81 @@ $ ./aid --target ./skills --output report.csv
     Unicode Tags: 142
     Zero-Width Chars: 12
     Directional Marks: 2
+✓ Report written to aid-report.csv
+```
+
+### Optional Expanded Scanning
+
+```bash
+# Include classic control chars (Cc), except TAB/LF/CR
+./aid --target ./project --include-cc
+
+# Include confusable/suspicious spaces and fillers (e.g., NBSP, thin space, hangul filler)
+./aid --target ./project --include-confusable-spaces
+
+# Include Unicode space separators (Zs), except ASCII space U+0020
+./aid --target ./project --include-zs
+
+# Enable both
+./aid --target ./project --include-cc --include-zs --include-confusable-spaces
 ```
 
 ## Detected Character Types
 
-### Unicode Tags (U+E0000 to U+E007F)
-Used for language tagging, but often abused for data smuggling. AID decodes these to their ASCII equivalents.
+Default mode now uses a **strict** detection set focused on high-signal smuggling characters.
 
-### Zero-Width Characters
-- Zero Width Space (U+200B)
-- Zero Width Non-Joiner (U+200C)
-- Zero Width Joiner (U+200D)
-- Zero Width No-Break Space (U+FEFF)
+### Unicode Tags
+- `U+E0000..U+E007F` (TAG block)
+- Decoded to ASCII equivalents in report notes where possible
 
-### Directional Marks
-- Left-to-Right/Right-to-Left marks and overrides
-- Bidirectional formatting characters
-- Can be used for text spoofing attacks
+### Zero-Width And Joiners
+- `U+034F` COMBINING GRAPHEME JOINER
+- `U+180E` MONGOLIAN VOWEL SEPARATOR
+- `U+200B` ZERO WIDTH SPACE
+- `U+200C` ZERO WIDTH NON-JOINER
+- `U+200D` ZERO WIDTH JOINER
+- `U+2060` WORD JOINER
+- `U+FEFF` ZERO WIDTH NO-BREAK SPACE
+
+### Directional And Bidi Marks
+- `U+061C`, `U+200E`, `U+200F`
+- `U+202A..U+202E`
+- `U+2066..U+2069`
 
 ### Variation Selectors
-- Variation Selectors 1-16 (U+FE00 to U+FE0F)
-- Control emoji and character rendering
+- `U+FE00..U+FE0F` (VS1..VS16)
+- `U+E0100..U+E01EF` (VS17..VS256)
+
+### Invisible Operators
+- `U+2061..U+2064` (function application/invisible math operators)
+
+### Deprecated Format Controls
+- `U+206A..U+206F`
+
+### Optional: Confusable/Suspicious Spaces And Fillers (`--include-confusable-spaces`)
+- `U+00A0` NO-BREAK SPACE
+- `U+00AD` SOFT HYPHEN
+- `U+2000..U+200A` (quad/space variants)
+- `U+202F` NARROW NO-BREAK SPACE
+- `U+205F` MEDIUM MATHEMATICAL SPACE
+- `U+2800` BRAILLE PATTERN BLANK
+- `U+3000` IDEOGRAPHIC SPACE
+- `U+3164` HANGUL FILLER
+- `U+FFA0` HALFWIDTH HANGUL FILLER
+
+### Optional: Space Separators Category (`--include-zs`)
+- Scans Unicode category `Zs` (space separators), excluding ASCII `U+0020 SPACE`
+- Broader and potentially noisier than the curated confusable-space list
+
+### Not Included
+- AID does not currently flag every possible Unicode `Cf/Cc/Zs` code point.
+- It focuses on high-risk and frequently abused invisible/smuggling characters.
+- `Cc` is only scanned when `--include-cc` is provided.
+- Confusable/suspicious spaces and fillers are only scanned when `--include-confusable-spaces` is provided.
+- `Zs` is only scanned when `--include-zs` is provided.
+- To avoid overwhelming noise:
+  - `--include-cc` excludes `TAB (U+0009)`, `LF (U+000A)`, and `CR (U+000D)`
+  - `--include-zs` excludes ASCII space `U+0020`
 
 ## Configuration
 
@@ -171,7 +229,7 @@ grep ",critical," report.csv
 ### JSON Output for Programmatic Use
 ```bash
 ./aid --target ./project --output report.json --format json
-cat report.json | jq '.file_assessments[] | select(.suspicion_level == "critical")'
+cat report.json | jq '.files[] | select(.suspicion_level == "critical")'
 ```
 
 ## How It Works
@@ -197,4 +255,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Acknowledgments
 
 Inspired by the need to detect sophisticated Unicode-based attacks and data hiding techniques.
-

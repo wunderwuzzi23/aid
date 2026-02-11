@@ -1,3 +1,4 @@
 *.csv
 .env
 go/
+__pycache__/
