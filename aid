@@ -120,6 +120,7 @@ SKIP_CC_DEFAULT = {'\t', '\n', '\r'}
 SKIP_ZS_DEFAULT = {' '}
 HIGH_CONSECUTIVE_RUN_THRESHOLD = 10
 CRITICAL_CONSECUTIVE_RUN_THRESHOLD = 40
+SPARSE_HIGH_TOTAL_THRESHOLD = 100
 
 # MIME types that are textual even when not under text/*.
 TEXTUAL_MIME_TYPES = {
@@ -419,16 +420,20 @@ def calculate_suspicion_level(findings):
 
     unique_code_points = len(unique_chars)
 
-    # Severity is run-driven:
+    # Severity is primarily run-driven:
     # - critical: very long consecutive run (>= 40)
     # - high: long consecutive run (>= 10)
-    # - sparse findings are capped at medium regardless of total volume.
+    # - high: sparse but very large total volume (> 100)
+    # - otherwise sparse findings are info/medium by volume.
     if max_consecutive_code_points >= CRITICAL_CONSECUTIVE_RUN_THRESHOLD:
         level = "critical"
         reason = f"Very long consecutive invisible run ({max_consecutive_code_points})"
     elif max_consecutive_code_points >= HIGH_CONSECUTIVE_RUN_THRESHOLD:
         level = "high"
         reason = f"Long consecutive invisible run ({max_consecutive_code_points})"
+    elif total_code_points > SPARSE_HIGH_TOTAL_THRESHOLD:
+        level = "high"
+        reason = f"Sparse but very large invisible volume ({total_code_points})"
     elif total_code_points < 10:
         level = "info"
         reason = "Sparse and low volume"

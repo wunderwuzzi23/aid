@@ -68,17 +68,18 @@ grep ",critical," report.csv
 AID automatically assesses the severity of findings:
 
 - 🔵 **INFO**: `longest_consecutive_run < 10` and `total_invisible_code_points < 10`
-- 🟡 **MEDIUM**: `longest_consecutive_run < 10` and `total_invisible_code_points >= 10`
-- 🟠 **HIGH**: `10 <= longest_consecutive_run < 40`
+- 🟡 **MEDIUM**: `longest_consecutive_run < 10` and `10 <= total_invisible_code_points <= 100`
+- 🟠 **HIGH**: `10 <= longest_consecutive_run < 40`, or `longest_consecutive_run < 10` with `total_invisible_code_points > 100`
 - 🔴 **CRITICAL**: `longest_consecutive_run >= 40`
 
 Classification is evaluated in this order:
 1. If `longest_consecutive_run >= 40`, severity is `critical`.
 2. Else if `longest_consecutive_run >= 10`, severity is `high`.
-3. Else if `total_invisible_code_points < 10`, severity is `info`.
-4. Else severity is `medium`.
+3. Else if `total_invisible_code_points > 100`, severity is `high`.
+4. Else if `total_invisible_code_points < 10`, severity is `info`.
+5. Else severity is `medium`.
 
-This means only long consecutive runs can produce `high` or `critical`; sparse distributions are capped at `medium`.
+This means `critical` is still run-only, and sparse distributions can now rise to `high` when total invisible volume is very large (`>100`).
 
 ### CSV Output Format (Compact)
 
