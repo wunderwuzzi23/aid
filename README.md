@@ -1,4 +1,4 @@
-# AID - ASCII/Invisible Character Detection Tool
+# AID 
 
 This tool was created with OpenAI Codex and Claude Code.
 
