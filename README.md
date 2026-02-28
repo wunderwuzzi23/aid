@@ -235,7 +235,7 @@ cat report.json | jq '.files[] | select(.suspicion_level == "critical")'
 Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ## Tool for tests
-https://embracethered.com/blog/ascii-smuggler.com
+[https://embracethered.com/blog/ascii-smuggler.com](https://embracethered.com/blog/ascii-smuggler.html) [#TrustNoAI](https://embracethered.com/blog/ascii-smuggler.html)
 
 ## License
 
