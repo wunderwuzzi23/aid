@@ -15,9 +15,10 @@ Full-fidelity port of the [`aid`](https://github.com/wunderwuzzi23/aid) Python C
 - 🌈 **Visual highlighting** — glowing overlays on detected characters with severity colors
 - 💬 **Hover tooltips** — character name, code point, run length, category
 - 📊 **Category breakdown** — mirrors the Python tool's 10-category classification
-- 📋 **Detail panel** — full detection report with jump-to-location
+- 📋 **Detail panel** — full detection report with highlight occurrence
 - 📤 **Export** — JSON and CSV reports matching the Python output format
 - ⚙️ **Configurable** — toggle confusable spaces, control chars (Cc), space separators (Zs)
+- ↕️ **Expand All** — instantly expand or collapse all detected hidden text on the page from the detail panel
 - 🔒 **Privacy-first** — runs entirely locally, no data collection
 - 🛸 **Hitchhiker's Guide Theme** — auto-triggers on high-volume detections with a retro terminal aesthetic and dynamic calming notice
 
@@ -43,7 +44,7 @@ Full-fidelity port of the [`aid`](https://github.com/wunderwuzzi23/aid) Python C
 3. View highlighted invisible characters on the page
 4. **Hover** over highlights for character details
 5. **Click** highlights to expand decoded text inline
-6. **Open Detail Panel** for the full report with category breakdown and export
+6. **Toggle Detail Panel** for the full report with category breakdown and export
 - 🛸 **Consult the Guide** — In Hitchhiker mode, look for the inline link in the header to jump straight to the details
 
 ### Settings
@@ -52,6 +53,7 @@ Full-fidelity port of the [`aid`](https://github.com/wunderwuzzi23/aid) Python C
 |---------|---------|-------------|
 | Auto-scan pages | Off | Scan every page automatically |
 | Sequence length filter | 1-0 | Min/Max limits for consecutive run highlighting (0 = no max limit) |
+| Fuzzy Search | Off | Match all words anywhere in the Detection Filter name or hex code |
 | Detect NO-BREAK SPACE | Off | Specifically isolate U+00A0 detection |
 | Detect confusable spaces | Off | Thin space, hangul filler, etc. (excludes NBSP if toggled separately) |
 | Detect control chars (Cc) | Off | Unicode Cc category (excludes TAB/LF/CR) |
