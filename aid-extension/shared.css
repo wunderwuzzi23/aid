@@ -11,8 +11,8 @@
 .filter-chip {
     display: inline-flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    background: rgba(74, 222, 128, 0.1);
+    border-radius: 0;
     font-size: 10px;
     overflow: hidden;
 }
@@ -41,14 +41,14 @@
 }
 
 .filter-chip[data-type="disabled"] .filter-chip-label {
-    color: #888;
+    color: #166534;
     text-decoration: line-through;
 }
 
 .filter-chip-label {
     padding: 2px 6px;
-    color: #eee;
-    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    color: #4ade80;
+    font-family: 'Cascadia Code', 'Fira Code', 'Courier New', Courier, monospace;
 }
 
 .filter-chip-remove {
@@ -68,14 +68,14 @@
 .search-filter-group {
     margin: 6px 0;
     padding: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: rgba(74, 222, 128, 0.1);
 }
 
 .search-filter-label {
     font-size: 10px;
-    color: #888;
+    color: #166534;
     display: block;
     margin-bottom: 6px;
     text-transform: uppercase;
@@ -92,9 +92,9 @@
     display: inline-flex;
     align-items: center;
     cursor: pointer;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0;
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid #4ade80;
     transition: background 0.2s;
     font-size: 11px;
     user-select: none;
@@ -102,9 +102,9 @@
 }
 
 .search-filter-chip:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(74, 222, 128, 0.1);
     transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
 }
 
 .sf-toggle {
@@ -132,7 +132,7 @@
 
 .sf-name {
     padding: 2px 6px 2px 0;
-    color: #ccc;
+    color: #22c55e;
 }
 
 /* ─── Filter Input & Dropdown ────────────────────────────────────────────── */
@@ -145,19 +145,19 @@
 .setting-text-input {
     width: 100%;
     padding: 6px 8px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    color: #e0e0e0;
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: #000;
+    color: #4ade80;
     font-size: 12px;
-    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-family: 'Cascadia Code', 'Fira Code', 'Courier New', Courier, monospace;
     outline: none;
     box-sizing: border-box;
 }
 
 .setting-text-input:focus {
-    border-color: rgba(124, 58, 237, 0.5);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: #4ade80;
+    background: #000;
 }
 
 .filter-dropdown {
@@ -167,12 +167,12 @@
     right: 0;
     max-height: 200px;
     overflow-y: auto;
-    background: #1e1e1e;
+    background: #000000;
     border: 1px solid rgba(124, 58, 237, 0.5);
-    border-radius: 4px;
+    border-radius: 0;
     z-index: 100;
     margin-top: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
 }
 
 .filter-dropdown.show {
@@ -182,9 +182,9 @@
 .dropdown-item {
     padding: 6px 8px;
     font-size: 11px;
-    color: #ccc;
+    color: #22c55e;
     cursor: pointer;
-    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-family: 'Cascadia Code', 'Fira Code', 'Courier New', Courier, monospace;
 }
 
 .dropdown-item:hover,
@@ -205,9 +205,9 @@
 .setting-drawer {
     margin-top: 8px;
     margin-bottom: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: rgba(74, 222, 128, 0.1);
 }
 
 .setting-drawer[open] {
@@ -217,7 +217,7 @@
 .setting-drawer-label {
     padding: 6px 10px;
     font-size: 11px;
-    color: #888;
+    color: #166534;
     cursor: pointer;
     user-select: none;
     list-style: none;
@@ -252,9 +252,9 @@
 }
 
 .seq-preview {
-    color: #888;
+    color: #166534;
     font-size: 11px;
-    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-family: 'Cascadia Code', 'Fira Code', 'Courier New', Courier, monospace;
 }
 
 .setting-input-row {
@@ -262,33 +262,33 @@
     align-items: center;
     justify-content: space-between;
     font-size: 12px;
-    color: #bbb;
+    color: #22c55e;
 }
 
 .setting-number {
     width: 64px;
     padding: 4px 6px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    color: #e0e0e0;
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: rgba(74, 222, 128, 0.1);
+    color: #4ade80;
     font-size: 12px;
-    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-family: 'Cascadia Code', 'Fira Code', 'Courier New', Courier, monospace;
     text-align: center;
     outline: none;
 }
 
 .setting-number:focus {
     border-color: rgba(124, 58, 237, 0.5);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(74, 222, 128, 0.1);
 }
 
 .setting-select {
     padding: 3px 6px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    color: #e0e0e0;
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: rgba(74, 222, 128, 0.1);
+    color: #4ade80;
     font-size: 11px;
     outline: none;
     cursor: pointer;
@@ -312,7 +312,7 @@
     gap: 8px;
     padding: 6px 0;
     font-size: 12px;
-    color: #bbb;
+    color: #22c55e;
     cursor: pointer;
 }
 
@@ -335,7 +335,7 @@
     gap: 6px;
     background: rgba(124, 58, 237, 0.1);
     padding: 2px 8px;
-    border-radius: 12px;
+    border-radius: 0;
     border: 1px solid rgba(124, 58, 237, 0.2);
     transition: all 0.2s;
 }
@@ -350,10 +350,10 @@
 .btn-primary {
     width: 100%;
     padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
-    color: white;
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: #000000; border: 1px solid #4ade80;
+    color: #4ade80;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -362,26 +362,38 @@
     justify-content: center;
     gap: 8px;
     transition: all 0.2s;
-}
+
+    text-transform: uppercase;
+    letter-spacing: 1px;}
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    background: #000000; border: 1px solid #4ade80;
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
-}
+    
+
+    text-transform: uppercase;
+    letter-spacing: 1px;}
 
 .btn-primary:active {
     transform: translateY(0);
-}
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid #4ade80;}
 
 .btn-primary:disabled {
     opacity: 0.5;
     cursor: wait;
-}
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid #4ade80;}
 
 .btn-primary.scanning {
-    background: linear-gradient(135deg, #1e40af, #5b21b6);
-}
+    background: #000000; border: 1px solid #4ade80;
+
+    text-transform: uppercase;
+    letter-spacing: 1px;}
 
 .btn-icon {
     font-size: 12px;
@@ -390,10 +402,10 @@
 .btn-panel {
     width: 100%;
     padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: #000000; border: 1px solid #4ade80;
+    color: #4ade80;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -402,26 +414,33 @@
     justify-content: center;
     gap: 8px;
     transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-}
+    
+
+    text-transform: uppercase;
+    letter-spacing: 1px;}
 
 .btn-panel:hover {
-    background: linear-gradient(135deg, #34d399, #10b981);
+    background: #000000; border: 1px solid #4ade80;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-}
+    
+
+    text-transform: uppercase;
+    letter-spacing: 1px;}
 
 .btn-panel:active {
     transform: translateY(0);
-}
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid #4ade80;}
 
 .btn-secondary {
     flex: 1;
     padding: 8px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.04);
-    color: #ccc;
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: rgba(74, 222, 128, 0.1);
+    color: #22c55e;
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s;
@@ -431,18 +450,18 @@
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(74, 222, 128, 0.1);
+    border-color: #4ade80;
     color: white;
 }
 
 .btn-icon-only {
     width: 34px;
     height: 34px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.04);
-    color: #ccc;
+    border: 1px solid #4ade80;
+    border-radius: 0;
+    background: rgba(74, 222, 128, 0.1);
+    color: #22c55e;
     font-size: 16px;
     cursor: pointer;
     display: flex;
@@ -452,7 +471,7 @@
 }
 
 .btn-icon-only:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(74, 222, 128, 0.1);
     color: white;
 }
 
@@ -464,16 +483,16 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(74, 222, 128, 0.1);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    background: rgba(74, 222, 128, 0.1);
+    border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(74, 222, 128, 0.1);
 }
 
 /* ─── Settings Alert ─────────────────────────────────────────────────────── */
@@ -481,7 +500,7 @@
 .settings-alert {
     background: rgba(255, 152, 0, 0.1);
     border: 1px solid rgba(255, 152, 0, 0.3);
-    border-radius: 6px;
+    border-radius: 0;
     padding: 8px 12px;
     margin: 10px 0;
     font-size: 11px;

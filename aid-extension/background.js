@@ -15,7 +15,7 @@ const DEFAULT_SETTINGS = {
     minSeqLength: 1,
     maxSeqLength: 0,  // 0 = no limit
     charFilters: [],  // array of { id: "U+FE0F", type: "exclude"|"include" }
-    visualProfile: 'military',
+    visualProfile: 'default',
     highlightStyle: 'nimbus',
     autoHitchhiker: false,
     autoHitchhikerThreshold: 8,

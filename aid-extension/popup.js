@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (optAhThreshold) optAhThreshold.value = settings.autoHitchhikerThreshold ?? 8;
     let charFilters = settings.charFilters || [];
     optFuzzySearch.checked = settings.fuzzySearch ?? true;
-    optTheme.value = settings.visualProfile || 'military';
+    optTheme.value = settings.visualProfile || 'default';
     optHlStyle.value = settings.highlightStyle || 'nimbus';
 
     // applyTheme is now provided globally by shared-ui.js
