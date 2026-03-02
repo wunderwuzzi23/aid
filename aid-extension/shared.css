@@ -294,6 +294,11 @@
     cursor: pointer;
 }
 
+.setting-select option {
+    background: #000000;
+    color: #4ade80;
+}
+
 .setting-select:focus {
     border-color: rgba(124, 58, 237, 0.5);
 }
@@ -352,7 +357,8 @@
     padding: 10px 16px;
     border: 1px solid #4ade80;
     border-radius: 0;
-    background: #000000; border: 1px solid #4ade80;
+    background: #000000;
+    border: 1px solid #4ade80;
     color: #4ade80;
     font-size: 14px;
     font-weight: 600;
@@ -364,22 +370,26 @@
     transition: all 0.2s;
 
     text-transform: uppercase;
-    letter-spacing: 1px;}
+    letter-spacing: 1px;
+}
 
 .btn-primary:hover {
-    background: #000000; border: 1px solid #4ade80;
+    background: #000000;
+    border: 1px solid #4ade80;
     transform: translateY(-1px);
-    
+
 
     text-transform: uppercase;
-    letter-spacing: 1px;}
+    letter-spacing: 1px;
+}
 
 .btn-primary:active {
     transform: translateY(0);
 
     text-transform: uppercase;
     letter-spacing: 1px;
-    border: 1px solid #4ade80;}
+    border: 1px solid #4ade80;
+}
 
 .btn-primary:disabled {
     opacity: 0.5;
@@ -387,13 +397,16 @@
 
     text-transform: uppercase;
     letter-spacing: 1px;
-    border: 1px solid #4ade80;}
+    border: 1px solid #4ade80;
+}
 
 .btn-primary.scanning {
-    background: #000000; border: 1px solid #4ade80;
+    background: #000000;
+    border: 1px solid #4ade80;
 
     text-transform: uppercase;
-    letter-spacing: 1px;}
+    letter-spacing: 1px;
+}
 
 .btn-icon {
     font-size: 12px;
@@ -404,7 +417,8 @@
     padding: 10px 16px;
     border: 1px solid #4ade80;
     border-radius: 0;
-    background: #000000; border: 1px solid #4ade80;
+    background: #000000;
+    border: 1px solid #4ade80;
     color: #4ade80;
     font-size: 13px;
     font-weight: 600;
@@ -414,25 +428,29 @@
     justify-content: center;
     gap: 8px;
     transition: all 0.2s;
-    
+
 
     text-transform: uppercase;
-    letter-spacing: 1px;}
+    letter-spacing: 1px;
+}
 
 .btn-panel:hover {
-    background: #000000; border: 1px solid #4ade80;
+    background: #000000;
+    border: 1px solid #4ade80;
     transform: translateY(-1px);
-    
+
 
     text-transform: uppercase;
-    letter-spacing: 1px;}
+    letter-spacing: 1px;
+}
 
 .btn-panel:active {
     transform: translateY(0);
 
     text-transform: uppercase;
     letter-spacing: 1px;
-    border: 1px solid #4ade80;}
+    border: 1px solid #4ade80;
+}
 
 .btn-secondary {
     flex: 1;
