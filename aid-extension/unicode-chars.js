@@ -251,6 +251,25 @@ function getAllKnownCharacters() {
     add(char, `UNICODE TAG (ASCII: ${decoded})`, 'tag');
   }
 
+  // 5. Control Characters (Cc)
+  for (let cp = 0; cp <= 0x1F; cp++) {
+    const char = String.fromCodePoint(cp);
+    if (!SKIP_CC.has(char)) {
+      add(char, controlCharName(char), 'control');
+    }
+  }
+  for (let cp = 0x7F; cp <= 0x9F; cp++) {
+    const char = String.fromCodePoint(cp);
+    add(char, controlCharName(char), 'control');
+  }
+
+  // 6. Space Separators (Zs)
+  for (const char of ZS_CHARS) {
+    if (char !== '\u00A0' && !CONFUSABLE_SPACE_CHARS[char]) {
+      add(char, zsCharName(char), 'space');
+    }
+  }
+
   // Sort alphabetically by name
   list.sort((a, b) => a.name.localeCompare(b.name));
 
