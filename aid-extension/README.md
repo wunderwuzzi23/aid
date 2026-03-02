@@ -16,6 +16,8 @@ Full-fidelity port of the [`aid`](https://github.com/wunderwuzzi23/aid) Python C
 - 💬 **Hover tooltips** — character name, code point, run length, category
 - 📊 **Category breakdown** — mirrors the Python tool's 10-category classification
 - 📋 **Detail panel** — full detection report with highlight occurrence
+- 🔓 **Dynamic Payload Decoder** — custom map '0' and '1' bit characters to decode hidden binary back to ASCII
+- 🎛️ **Advanced Filtering** — autocomplete, fuzzy search, sequence length limits, and category toggles for granular detection control
 - 📤 **Export** — JSON and CSV reports matching the Python output format
 - ⚙️ **Configurable** — toggle confusable spaces, control chars (Cc), space separators (Zs)
 - ↕️ **Expand All** — instantly expand or collapse all detected hidden text on the page from the detail panel
