@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (r.settings) {
             await loadFilterSettings();
-            applyTheme(r.settings.visualProfile);
+            applyTheme(r.activeTheme || r.settings.visualProfile || 'default');
         }
 
         if (typeof filterUI !== 'undefined') {

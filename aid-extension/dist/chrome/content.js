@@ -55,8 +55,10 @@
             applyTheme('hitchhiker');
             isHitchhikerActive = true;
         } else {
-            applyTheme('default');
+            applyTheme(settings.visualProfile || 'default');
         }
+
+        window.__assActiveTheme = isHitchhikerActive ? 'hitchhiker' : (settings.visualProfile || 'default');
 
         // Add calming yet stressful message for hitchhiker theme
         if (isHitchhikerActive && pageSuspicion && pageSuspicion.totalCodePoints > 0) {
@@ -821,6 +823,7 @@
             tagRunSummary: summarizeTagRuns(allResults),
             detections,
             settings,
+            activeTheme: window.__assActiveTheme || settings.visualProfile || 'default',
         };
     }
 

@@ -13,6 +13,13 @@ body {
     color: #e0e0e0;
     min-width: 320px;
     max-width: 360px;
+    /* Constrain popup */
+}
+
+/* Override for Side Panel */
+body.panel-body {
+    max-width: none !important;
+    width: 100% !important;
 }
 
 .popup-container {
@@ -75,6 +82,7 @@ body {
     font-size: 11px;
     color: #bbb;
 }
+
 /* ─── AID Detail Panel Styles ─────────────────────────────────────────────── */
 
 * {
@@ -83,12 +91,11 @@ body {
     box-sizing: border-box;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    font-size: 13px;
-    background: #0d0d1a;
-    color: #e0e0e0;
+body.panel-body {
+    background: #0d0d1a !important;
     min-width: 300px;
+    max-width: none !important;
+    width: 100% !important;
 }
 
 .panel-container {
@@ -104,6 +111,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 10;
+    width: 100% !important;
 }
 
 .panel-header-row {
@@ -643,6 +651,7 @@ body {
     font-style: italic;
     margin-bottom: 6px;
 }
+
 /* ─── Shared UID Filter Components ────────────────────────────────────────── */
 
 /* ─── Active Filters Chips ────────────────────────────────────────────────── */
