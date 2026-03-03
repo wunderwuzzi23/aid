@@ -525,7 +525,7 @@ body.panel-body {
 }
 
 .panel-url::before {
-    content: "The Hitchhiker's Guide to the Galaxy has this to say about " !important;
+    content: "The Guide has this to say about " !important;
     color: #61d0eb !important;
     font-size: 15px !important;
     font-weight: bold !important;
