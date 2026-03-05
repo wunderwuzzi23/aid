@@ -9,7 +9,7 @@ This sentence looks normal.󠁈󠁉󠁄󠁄󠁅󠁎󠁟󠁓󠁍󠁕󠁇󠁇󠁌�
 
 ## Test 2: Variation Selector Supplements (VS17-256)
 
-Another innocent looking paragraph.󠄒󠄄󠄂󠄑󠄄󠄓 With VS17-256 encoded data hidden inline.
+Another innocent looking paragraph.󠅃󠄵󠄳󠅂󠄵󠅄 With VS17-256 encoded data hidden inline.
 
 ## Test 3: Zero-Width Binary Steganography
 
@@ -38,4 +38,5 @@ Imp­ort­ant doc­um­ent with soft hyphens inserted for text fingerprinting.
 - The Markdown version embeds raw Unicode characters directly (no HTML entities).
 - GitHub is a primary target for this extension — this file tests detection in rendered Markdown.
 - Test 3 encodes "SMUGGLED" as 8 ASCII bytes = 64 bits using ZWSP (U+200B) as 0 and ZWNJ (U+200C) as 1.
+- Test 2 uses the extension's VS decode formula: `ascii = codepoint - 0xE0100 + 16`.
 - Test 1 should produce a Critical suspicion level due to the Unicode Tag run length.
