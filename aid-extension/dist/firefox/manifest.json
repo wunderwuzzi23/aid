@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "ASS - ASCII Smuggling Surfacer",
+  "version": "1.0.0",
+  "description": "Detect invisible Unicode steganography & smuggling attacks in web pages",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "optional_host_permissions": [
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "themes/*.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ASS - ASCII Smuggling Surfacer",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ass@wunderwuzzi23",
+      "strict_min_version": "128.0"
+    }
+  },
+  "sidebar_action": {
+    "default_panel": "panel.html",
+    "default_title": "ASS – Detection Report",
+    "default_icon": "icons/icon48.png"
+  }
+}

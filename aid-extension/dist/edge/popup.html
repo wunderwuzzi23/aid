@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASS Settings</title>
+  <!-- Base CSS will not be loaded directly to support theming -->
+  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="shared.css">
+</head>
+
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="popup-header">
+      <div class="popup-logo">
+        <img src="icons/icon48.png" alt="ASS" width="24" height="24">
+        <div>
+          <div class="popup-title">ASS</div>
+          <div class="popup-subtitle">ASCII Smuggling Surfacer</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scan Button -->
+    <div class="popup-section" id="scan-section">
+      <button id="scan-btn" class="btn-primary">
+        <span class="btn-icon">▶</span> Scan This Page
+      </button>
+      <button id="expand-all-btn" class="btn-secondary hidden" style="margin-top: 8px; width: 100%;">
+        Expand All
+      </button>
+    </div>
+
+    <!-- Status (hidden until scan completes) -->
+    <div class="popup-section" id="status-section" style="display: none;">
+      <div class="status-badge" id="status-badge">
+        <span class="status-emoji" id="status-emoji">✓</span>
+        <span class="status-text" id="status-text">No detections</span>
+      </div>
+      <div class="status-detail" id="status-detail"></div>
+    </div>
+
+    <!-- Settings Alert -->
+    <div id="popup-settings-alert" class="settings-alert hidden" style="margin: 0 16px 10px 16px;">
+      <span class="settings-alert-icon">⚠️</span>
+      <span style="font-size: 10px;">Filtered by non-default settings</span>
+    </div>
+
+    <!-- Category Breakdown (hidden until scan completes with findings) -->
+    <div class="popup-section" id="category-section" style="display: none;">
+      <div class="section-label">📊 Category Breakdown</div>
+      <div class="category-list" id="category-list"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="popup-section popup-actions" style="margin-top: 12px; border-bottom: none;">
+      <button id="panel-btn" class="btn-panel" title="Toggle Detail Panel">
+        Toggle Detail Panel ⇹
+      </button>
+    </div>
+
+    <!-- Settings -->
+    <div class="popup-section" id="settings-section">
+      <div class="section-label">⚙ Settings</div>
+      <label class="setting-row">
+        <input type="checkbox" id="opt-autoscan">
+        <span>Auto-scan pages</span>
+      </label>
+      <div class="setting-row" style="align-items: center; margin-bottom: 2px;">
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="opt-auto-hitchhiker">
+          <span>Auto calming threshold </span>
+        </label>
+        <input type="number" id="opt-ah-threshold" class="setting-number"
+          style="width: 55px; padding: 2px 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: white; border-radius: 4px; text-align: center;"
+          min="1" value="8">
+        <span style="font-size: 11px; color: #aaa; margin-left: 4px;">bits</span>
+      </div>
+      <div class="setting-hint" style="margin-left: 20px; margin-bottom: 8px;">Triggers "Hitchhiker" theme if detected
+        hidden structure payload exceeds this bit length.</div>
+      <div class="setting-input-block">
+        <div class="search-filter-group" style="margin-bottom: 8px;">
+          <label class="search-filter-label">Search Filtering (affects dropdown only)</label>
+          <div class="search-filter-chips" id="search-filter-chips">
+            <div class="search-filter-chip" data-category="invisible" data-state="include">
+              <span class="sf-toggle">+</span><span class="sf-name">Invisible</span>
+            </div>
+            <div class="search-filter-chip" data-category="variation" data-state="include">
+              <span class="sf-toggle">+</span><span class="sf-name">Variation Selectors</span>
+            </div>
+            <div class="search-filter-chip" data-category="tag" data-state="include">
+              <span class="sf-toggle">+</span><span class="sf-name">Unicode Tags</span>
+            </div>
+            <div class="search-filter-chip" data-category="space" data-state="include">
+              <span class="sf-toggle">+</span><span class="sf-name">Spaces / Confusables</span>
+            </div>
+            <div class="search-filter-chip" data-category="control" data-state="include">
+              <span class="sf-toggle">+</span><span class="sf-name">Control Chars</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-filter-group">
+          <label class="search-filter-label">Detection Filter</label>
+          <div class="filter-input-wrapper">
+            <input type="text" id="filter-input" class="setting-text-input"
+              placeholder="Type name or U+XXXX to filter...">
+            <div class="filter-dropdown" id="filter-dropdown"></div>
+          </div>
+          <div class="filter-dropdown-hint"
+            style="font-size: 11px; color: #888; margin: 4px 0 8px 0; font-family: 'Cascadia Code', 'Fira Code', monospace; display: flex; justify-content: space-between; align-items: center;">
+            <span>type name or hex code to filter</span>
+            <label class="fuzzy-toggle-container" title="Match all words anywhere in name or code">
+              <input type="checkbox" id="opt-fuzzy-search" style="margin: 0;">
+              <span style="font-size: 10px; color: #aaa; font-weight: 500;">Fuzzy</span>
+            </label>
+          </div>
+          <div id="chip-hint"
+            style="font-size: 10px; color: #888; margin: 8px 0 4px 0; font-family: 'Cascadia Code', 'Fira Code', monospace; display: none;">
+            Click <span style="color: #4ade80">+</span> or <span style="color: #f87171">−</span> to toggle
+            inclusion/exclusion
+          </div>
+          <div class="filter-chips-container" id="filter-chips"></div>
+          <details class="setting-drawer" id="seq-length-drawer">
+            <summary class="setting-drawer-label">Sequence length. <span id="seq-preview" class="seq-preview"></span>
+            </summary>
+            <div class="setting-drawer-body">
+              <div class="setting-input-row">
+                <label for="opt-min-seq">Min length</label>
+                <input type="number" id="opt-min-seq" min="1" value="1" class="setting-number">
+              </div>
+              <div class="setting-input-row">
+                <label for="opt-max-seq">Max length</label>
+                <input type="number" id="opt-max-seq" min="0" value="0" placeholder="0 = no limit"
+                  class="setting-number">
+              </div>
+              <div class="setting-hint">0 = no limit. Filters consecutive runs by length.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+      <label class="setting-row" style="margin-bottom: 8px;">
+        <span style="font-size: 13px;">Visual Profile:</span>
+        <select id="opt-theme" class="setting-select" style="width:160px;">
+          <option value="default">Military Scanner (Default)</option>
+          <option value="retro-gemini">Retro Gemini</option>
+          <option value="hitchhiker">Hitchhiker's Guide</option>
+        </select>
+      </label>
+      <label class="setting-row" style="margin-bottom: 8px;">
+        <span style="font-size: 13px;">Highlight Style:</span>
+        <select id="opt-hl-style" class="setting-select" style="margin-left: auto;">
+          <option value="military">Military (Sharp)</option>
+          <option value="classic">Classic (Solid)</option>
+          <option value="nimbus">Nimbus (Subtle)</option>
+          <option value="ghost">Ghost (Hidden)</option>
+        </select>
+      </label>
+      <label class="setting-row">
+        <input type="checkbox" id="opt-nbsp">
+        <span>Detect NBSP (U+00A0)</span>
+      </label>
+      <label class="setting-row">
+        <input type="checkbox" id="opt-confusable">
+        <span>Detect confusable spaces</span>
+      </label>
+      <label class="setting-row">
+        <input type="checkbox" id="opt-cc">
+        <span>Detect control chars (Cc)</span>
+      </label>
+      <label class="setting-row">
+        <input type="checkbox" id="opt-zs">
+        <span>Detect space separators (Zs)</span>
+      </label>
+    </div>
+  </div>
+
+  <script src="unicode-chars.js"></script>
+  <script src="shared-ui.js"></script>
+  <script src="popup.js"></script>
+</body>
+
+</html>

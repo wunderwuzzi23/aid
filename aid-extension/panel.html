@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASS – Detection Report</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="panel.css">
+</head>
+
+<body class="panel-body">
+    <div class="panel-container">
+        <!-- Header -->
+        <div class="panel-header">
+            <!-- Top Controls -->
+            <div class="panel-top-controls">
+                <button id="expand-all-btn" class="header-link">Expand All</button>
+                <span class="control-separator">|</span>
+                <div class="export-wrapper">
+                    <button id="header-export-btn" class="header-link">Export ▾</button>
+                    <div id="header-export-menu" class="export-menu hidden">
+                        <div class="export-menu-item" data-format="csv">CSV</div>
+                        <div class="export-menu-item" data-format="json">JSON</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-header-row">
+                <div class="panel-logo">
+                    <img src="icons/icon48.png" alt="ASS" width="20" height="20">
+                    <span class="panel-title">ASS – Detection Report</span>
+                </div>
+                <div class="panel-header-actions">
+                    <button class="panel-close" id="close-btn" title="Close panel">✕</button>
+                </div>
+            </div>
+            <div class="panel-url" id="page-url"></div>
+        </div>
+
+        <!-- No Results State -->
+        <div class="panel-empty" id="empty-state">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-text">No scan results available</div>
+            <div class="empty-hint">Click the ASS icon and press "Scan This Page" to start.</div>
+        </div>
+
+        <!-- Results Container -->
+        <div id="results-container" style="display: none;">
+
+            <!-- Page Summary -->
+            <div class="panel-section">
+                <div class="section-header">📊 Page Summary</div>
+                <div class="summary-grid" id="summary-grid"></div>
+            </div>
+
+            <!-- Category Breakdown -->
+            <div class="panel-section" id="category-section" style="display: none;">
+                <div class="section-header">📊 By Category</div>
+                <div class="category-grid" id="category-grid"></div>
+            </div>
+
+            <!-- Filter & Settings Drawer -->
+            <div class="panel-section" id="active-filters-section">
+                <details class="setting-drawer" id="panel-settings-drawer" style="margin-top: 16px;">
+                    <summary class="setting-drawer-label"
+                        style="font-size: 14px; color: #4ade80; text-transform: uppercase;">
+                        ⚙️ Settings & Filters
+                    </summary>
+                    <div class="setting-drawer-body"
+                        style="padding-top: 12px; border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 8px;">
+
+                        <!-- Visual Profile -->
+                        <div class="setting-row">
+                            <span class="setting-label">Visual Profile:</span>
+                            <select id="panel-opt-theme" class="setting-select" style="width:160px;">
+                                <option value="default">Military Scanner (Default)</option>
+                                <option value="retro-gemini">Retro Gemini</option>
+                                <option value="hitchhiker">Hitchhiker's Guide</option>
+                            </select>
+                        </div>
+                        <div class="setting-row"
+                            style="margin-top: -8px; padding-left: 2px; align-items: center; margin-bottom: 2px;">
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="checkbox" id="panel-opt-auto-hitchhiker">
+                                <span>Auto calming threshold </span>
+                            </label>
+                            <input type="number" id="panel-opt-ah-threshold" class="setting-number"
+                                style="width: 55px; padding: 2px 4px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4); color: white; border-radius: 4px; text-align: center;"
+                                min="1" value="8">
+                            <span style="font-size: 11px; color: #aaa; margin-left: 4px;">bits</span>
+                        </div>
+                        <div class="setting-hint" style="margin-left: 22px; margin-bottom: 8px;">Triggers "Hitchhiker"
+                            theme if detected hidden structure payload exceeds this bit length.</div>
+
+                        <!-- Highlight Customization -->
+                        <div class="setting-row" style="margin-top: -8px;">
+                            <span class="setting-label">Highlight Style:</span>
+                            <select id="panel-highlight-style" class="setting-select">
+                                <option value="military">Military (Sharp)</option>
+                                <option value="classic">Classic (Solid)</option>
+                                <option value="nimbus">Nimbus (Subtle)</option>
+                                <option value="ghost">Ghost (Hidden)</option>
+                            </select>
+                        </div>
+
+                        <!-- Search Filter Category Chips -->
+                        <div class="search-filter-group" style="margin: 8px 0;">
+                            <label class="search-filter-label">Search Filtering (affects dropdown only)</label>
+                            <div class="search-filter-chips" id="panel-search-filter-chips">
+                                <div class="search-filter-chip" data-category="invisible" data-state="include">
+                                    <span class="sf-toggle">+</span><span class="sf-name">Invisible</span>
+                                </div>
+                                <div class="search-filter-chip" data-category="variation" data-state="include">
+                                    <span class="sf-toggle">+</span><span class="sf-name">Variation Selectors</span>
+                                </div>
+                                <div class="search-filter-chip" data-category="tag" data-state="include">
+                                    <span class="sf-toggle">+</span><span class="sf-name">Unicode Tags</span>
+                                </div>
+                                <div class="search-filter-chip" data-category="space" data-state="include">
+                                    <span class="sf-toggle">+</span><span class="sf-name">Spaces / Confusables</span>
+                                </div>
+                                <div class="search-filter-chip" data-category="control" data-state="include">
+                                    <span class="sf-toggle">+</span><span class="sf-name">Control Chars</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Autocomplete Filter Input -->
+                        <div class="search-filter-group">
+                            <div class="section-header" style="font-size: 11px; margin-bottom: 8px;">DETECTION FILTER
+                            </div>
+                            <div class="filter-input-wrapper">
+                                <input type="text" id="panel-filter-input" class="setting-text-input"
+                                    placeholder="Type name or U+XXXX to filter...">
+                                <div class="filter-dropdown" id="panel-filter-dropdown"></div>
+                            </div>
+                            <div class="filter-dropdown-hint"
+                                style="font-size: 11px; color: #888; margin: 4px 0 8px 0; font-family: 'Cascadia Code', 'Fira Code', monospace; display: flex; justify-content: space-between; align-items: center;">
+                                <span>type name or hex code to filter</span>
+                                <label class="fuzzy-toggle-container" title="Match all words anywhere in name or code">
+                                    <input type="checkbox" id="panel-opt-fuzzy-search" style="margin: 0;">
+                                    <span style="font-size: 10px; color: #aaa; font-weight: 500;">Fuzzy</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Detection Checkboxes -->
+                        <div class="panel-filter-toggles" id="panel-filter-toggles" style="margin-top: 8px;">
+                            <label class="setting-row">
+                                <input type="checkbox" id="panel-opt-nbsp">
+                                <span>Detect NBSP (U+00A0)</span>
+                            </label>
+                            <label class="setting-row">
+                                <input type="checkbox" id="panel-opt-confusable">
+                                <span>Detect confusable spaces</span>
+                            </label>
+                            <label class="setting-row">
+                                <input type="checkbox" id="panel-opt-cc">
+                                <span>Detect control chars (Cc)</span>
+                            </label>
+                            <label class="setting-row">
+                                <input type="checkbox" id="panel-opt-zs">
+                                <span>Detect space separators (Zs)</span>
+                            </label>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Always visible: active filter chips + sequence length -->
+            <div class="panel-filter-persistent">
+                <div id="panel-chip-hint"
+                    style="font-size: 11px; color: #888; margin-bottom: 6px; font-family: 'Cascadia Code', 'Fira Code', monospace; display: none;">
+                    Click <span style="color: #4ade80">+</span> or <span style="color: #f87171">−</span> to toggle
+                    inclusion/exclusion
+                </div>
+                <div class="filter-chips-container" id="panel-filter-chips"></div>
+                <details class="setting-drawer" id="panel-seq-length-drawer">
+                    <summary class="setting-drawer-label">Sequence length. <span id="panel-seq-preview"
+                            class="seq-preview"></span></summary>
+                    <div class="setting-drawer-body">
+                        <div class="setting-input-row">
+                            <label for="panel-opt-min-seq">Min length</label>
+                            <input type="number" id="panel-opt-min-seq" min="1" value="1" class="setting-number">
+                        </div>
+                        <div class="setting-input-row">
+                            <label for="panel-opt-max-seq">Max length</label>
+                            <input type="number" id="panel-opt-max-seq" min="0" value="0" placeholder="0 = no limit"
+                                class="setting-number">
+                        </div>
+                        <div class="setting-hint">0 = no limit. Filters consecutive runs by length.</div>
+                    </div>
+                </details>
+
+
+                <!-- Sneaky Bits Configuration (Relocated) -->
+                <div class="sneaky-bits-config" id="panel-sb-config-section"
+                    style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06);">
+                    <div style="font-size: 11px; color: #888; margin-bottom: 8px; font-weight: 500;">Dynamic Payload
+                        Decoder</div>
+                    <div id="sb-auto-suggest-hint" class="sb-hint" style="display:none; color: #4ade80;">Auto-suggested
+                        based on page detections</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px;">
+                        <div class="setting-row" style="margin: 0; padding: 0;">
+                            <span style="font-size: 11px; color: #888; min-width: 50px;">'0' Bit:</span>
+                            <select id="sb-char-0-select" class="setting-select" style="flex: 1; max-width: 100%;">
+                                <option value="">(None)</option>
+                            </select>
+                        </div>
+                        <div class="setting-row" style="margin: 0; padding: 0;">
+                            <span style="font-size: 11px; color: #888; min-width: 50px;">'1' Bit:</span>
+                            <select id="sb-char-1-select" class="setting-select" style="flex: 1; max-width: 100%;">
+                                <option value="">(None)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Alert -->
+            <div id="panel-settings-alert" class="settings-alert hidden">
+                <span class="settings-alert-icon">⚠️</span>
+                <span>Scan results may be filtered by non-default settings.</span>
+            </div>
+
+        </div>
+
+        <!-- Tag Runs (Decoded Hidden Runs) -->
+        <div class="panel-section" id="tag-runs-section" style="display: none;">
+            <div class="section-header">🏷️ Decoded Hidden Runs</div>
+            <div class="tag-runs" id="tag-runs"></div>
+        </div>
+
+        <!-- Detections -->
+        <div class="panel-section">
+            <div class="section-header">📋 Detections</div>
+            <div id="detections-list"></div>
+        </div>
+
+        <!-- Export -->
+        <div class="panel-section panel-export">
+            <button class="btn-export" id="export-json">Export JSON</button>
+            <button class="btn-export" id="export-csv">Export CSV</button>
+        </div>
+    </div>
+
+    <script src="unicode-chars.js"></script>
+    <script src="shared-ui.js"></script>
+    <script src="panel.js"></script>
+</body>
+
+</html>

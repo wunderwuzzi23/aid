@@ -1,0 +1,542 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+/* ─── ASS – Hitchhiker's Guide Theme ───────────────────────────────────────── */
+
+/* 
+ * This theme styles detection cards and highlights in the "Hitchhiker" aesthetic:
+ * friendly green text and dark backgrounds.
+ */
+
+body::before {
+    content: "DON'T PANIC";
+    display: inline-block !important;
+    text-align: left !important;
+    font-size: 3em !important;
+    line-height: 1 !important;
+    font-weight: bold !important;
+    color: #ff0055 !important;
+    padding-right: 20px !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    font-family: 'Arial Rounded MT Bold', 'Arial Black', sans-serif !important;
+    vertical-align: middle !important;
+}
+
+#ass-hitchhiker-notice {
+    font-family: 'VT323', monospace !important;
+    color: #fac610 !important;
+    font-size: 1.5em !important;
+    font-style: italic !important;
+    max-width: 90% !important;
+    line-height: 1.2 !important;
+    text-shadow: 0 0 5px rgba(250, 198, 16, 0.5), 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+    pointer-events: none !important;
+    margin-bottom: 20px !important;
+    margin-top: 10px !important;
+    display: block !important;
+    letter-spacing: 0.5px !important;
+}
+
+#ass-hitchhiker-link {
+    color: #4ade80 !important;
+    /* Green */
+    text-decoration: underline !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    margin-left: 10px !important;
+    font-weight: bold !important;
+    transition: color 0.2s ease !important;
+}
+
+#ass-hitchhiker-link:hover {
+    color: #ff0055 !important;
+    /* Red on hover */
+}
+
+/* Make text generally green, except for specific elements that might need normal contrast */
+body * {
+    font-family: 'Courier New', Courier, monospace !important;
+}
+
+p,
+span,
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+a,
+label {
+    color: #4ade80 !important;
+}
+
+a {
+    text-decoration: underline !important;
+    color: #00ffaa !important;
+}
+
+/* Garish Vogon Purple (Dark Magenta) - Used more sparingly for deep tech contexts */
+.detection-card-count,
+.detection-card-context,
+.detection-card-detail,
+.sb-hint,
+.sb-data-type,
+.empty-text {
+    color: #b254a0 !important;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Soft Cyan for labels, URLs, and table item names */
+.search-filter-label,
+.setting-drawer-label,
+.panel-url,
+.sb-payload-label,
+.char-name {
+    color: #61d0eb !important;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Vivid Yellow for instructional/setting hints and tooltips */
+.setting-hint,
+.seq-preview,
+.filter-dropdown-hint,
+.filter-dropdown-hint span,
+#chip-hint,
+#panel-chip-hint,
+.empty-hint,
+.ass-tooltip-hint {
+    color: #fac610 !important;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Specific inline-style overrides for inline gray text */
+span[style*="color: #aaa"],
+span[style*="color: #888"],
+div[style*="color: #aaa"],
+div[style*="color: #888"],
+div[style*="color:#aaa"],
+div[style*="color:#888"] {
+    color: #61d0eb !important;
+}
+
+/* Inline Expansions and Decoded Text - Make them stand out dramatically */
+.ass-hl.expanded .ass-marker,
+.sb-decoded-box,
+.tag-runs {
+    background: rgba(250, 198, 16, 0.15) !important;
+    border: 1px dashed rgba(250, 198, 16, 0.5) !important;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+/* ─── In-Page Highlight Overrides ────────────────────────────────────────── */
+
+/* Ensure the inserted text contrasts against the original green text */
+.ass-marker {
+    color: #fac610 !important;
+    padding: 0 4px !important;
+    border-radius: 3px !important;
+}
+
+/* Make standard highlights pop with 'DON'T PANIC' red and vivid yellow */
+.ass-hl-nimbus {
+    background: rgba(255, 0, 85, 0.15) !important;
+    /* Slight red tint */
+    box-shadow: 0 0 12px 3px rgba(255, 0, 85, 0.8), inset 0 0 8px rgba(250, 198, 16, 0.4) !important;
+    border-radius: 4px !important;
+}
+
+.ass-hl-classic {
+    background-color: rgba(255, 0, 85, 0.3) !important;
+    border-bottom: 2px dashed #fac610 !important;
+}
+
+.ass-hl:hover .ass-marker {
+    color: #ffffff !important;
+    background: #ff0055 !important;
+}
+
+.ass-hl.expanded .ass-marker {
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    margin-left: 4px !important;
+}
+
+.ass-hl.expanded .ass-marker,
+.ass-tooltip-decoded,
+.ass-tooltip-decoded code,
+.sb-decoded-text,
+.tag-runs {
+    color: #fac610 !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+.tag-runs {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+}
+
+.detection-jump {
+    color: #fac610 !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    border-top: 1px dashed rgba(250, 198, 16, 0.3) !important;
+    padding-top: 8px !important;
+    margin-top: 10px !important;
+}
+
+.detection-jump:hover {
+    color: #ffffff !important;
+    background: rgba(250, 198, 16, 0.2) !important;
+}
+
+/* Selection color */
+::selection {
+    background: #4ade80 !important;
+    color: #001a00 !important;
+}
+
+/* Custom scrollbar to match the theme */
+::-webkit-scrollbar {
+    width: 14px !important;
+}
+
+::-webkit-scrollbar-track {
+    background: #111 !important;
+    border-left: 2px solid #333 !important;
+    border-radius: 0 10px 10px 0 !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333 !important;
+    border: 2px solid #111 !important;
+    border-radius: 7px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555 !important;
+}
+
+/* ─── Sidebar Panel Overrides (Retro 16-bit Tiles) ───────────────────────── */
+
+.panel-container {
+    background-color: #001a00 !important;
+}
+
+.section-header {
+    color: #ff0055 !important;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+    border-bottom: 2px dashed #4ade80 !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 4px !important;
+}
+
+/* Grid Layouts to use sidebar space effectively */
+.summary-grid,
+.category-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+    border: none !important;
+    /* Remove standard green border */
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.panel-section {
+    border-bottom: 2px dashed rgba(74, 222, 128, 0.2) !important;
+}
+
+/* Full width items */
+.summary-item-full,
+.category-row-full {
+    grid-column: 1 / -1 !important;
+}
+
+/* Retro 16-bit Tile Aesthetic */
+.summary-item,
+.category-row,
+.detection-card,
+.sb-payload-block {
+    background-color: #003300 !important;
+    border: 2px solid #00ffaa !important;
+    box-shadow: 2px 2px 0 #005500, inset 1px 1px 0 rgba(74, 222, 128, 0.5) !important;
+    border-radius: 4px !important;
+    padding: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    position: relative !important;
+    image-rendering: pixelated !important;
+    margin-bottom: 0 !important;
+}
+
+/* Ensure consistent height for grid items to keep them "in line" */
+.summary-grid .summary-item {
+    min-height: 50px !important;
+}
+
+/* For Category Row to layout nicely */
+.category-row {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.summary-item::after,
+.category-row::after,
+.detection-card::after,
+.sb-payload-block::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: repeating-linear-gradient(0deg,
+            rgba(0, 0, 0, 0.15),
+            rgba(0, 0, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 2px) !important;
+    pointer-events: none !important;
+    border-radius: 4px !important;
+    /* Match parent exactly */
+    z-index: 1 !important;
+    box-sizing: border-box !important;
+}
+
+.summary-item>*,
+.category-row>*,
+.detection-card>*,
+.sb-payload-block>* {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.summary-item:hover,
+.category-row:hover {
+    background-color: #004400 !important;
+    border-color: #ffffff !important;
+}
+
+.summary-item-label,
+.cat-name {
+    font-size: 10px !important;
+    text-transform: uppercase !important;
+    color: #88ff88 !important;
+    margin-bottom: 4px !important;
+    text-shadow: 1px 1px 0 #000 !important;
+}
+
+.summary-item-value,
+.cat-count {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    color: #ffffff !important;
+    text-shadow: 1px 1px 0 #000 !important;
+    text-align: left !important;
+}
+
+.cat-count {
+    background: #000 !important;
+    padding: 2px 4px !important;
+    border: 1px solid #4ade80 !important;
+}
+
+/* Severity specific coloring for tiles */
+.level-critical,
+.severity-dot.critical {
+    border-color: #ff0055 !important;
+    box-shadow: 2px 2px 0 #330011, inset 1px 1px 0 #ff88aa !important;
+}
+
+.level-critical .summary-item-value {
+    color: #ff0055 !important;
+}
+
+.level-high,
+.severity-dot.high {
+    border-color: #ff9800 !important;
+    box-shadow: 2px 2px 0 #331f00, inset 1px 1px 0 #ffcc88 !important;
+}
+
+.level-high .summary-item-value {
+    color: #ff9800 !important;
+}
+
+.level-medium,
+.severity-dot.medium {
+    border-color: #ffc107 !important;
+    box-shadow: 2px 2px 0 #332600, inset 1px 1px 0 #ffee88 !important;
+}
+
+.level-medium .summary-item-value {
+    color: #ffc107 !important;
+}
+
+.level-info,
+.severity-dot.info {
+    border-color: #2196f3 !important;
+    box-shadow: 2px 2px 0 #061e31, inset 1px 1px 0 #88ccff !important;
+}
+
+.level-info .summary-item-value {
+    color: #2196f3 !important;
+}
+
+/* ─── Header Redesign for Sidebar ────────────────────────────────────────── */
+
+.panel-header {
+    background: transparent !important;
+    border: none !important;
+    /* Fix: Remove default borders that look like hanging brackets */
+    padding: 0 0 20px 0 !important;
+    position: static !important;
+    /* Unstick the header so it flows */
+    text-align: center !important;
+}
+
+.panel-logo {
+    display: none !important;
+    /* Hide standard logo/title */
+}
+
+.panel-header-row {
+    display: block !important;
+}
+
+/* Move action buttons (Expand All, Export, Close) to be in line */
+.panel-top-controls {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: #002200 !important;
+    padding: 6px 12px !important;
+    border: 2px solid #4ade80 !important;
+    border-radius: 6px !important;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8) !important;
+    margin-bottom: 20px !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+}
+
+body.panel-body {
+    padding-top: 20px !important;
+}
+
+.panel-header-actions {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 101 !important;
+}
+
+.control-separator {
+    color: #4ade80 !important;
+    opacity: 0.5 !important;
+}
+
+.export-wrapper {
+    position: relative !important;
+}
+
+/* Style the buttons to fit the retro aesthetic */
+.header-link,
+.panel-close {
+    font-family: 'Courier New', Courier, monospace !important;
+    color: #fac610 !important;
+    background: transparent !important;
+    border: 1px dashed rgba(250, 198, 16, 0.5) !important;
+    text-transform: uppercase !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+}
+
+.header-link:hover {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    background: rgba(250, 198, 16, 0.2) !important;
+}
+
+.panel-close {
+    color: #ff0055 !important;
+    border-color: #ff0055 !important;
+}
+
+.panel-close:hover {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    background: rgba(255, 0, 85, 0.3) !important;
+}
+
+.export-menu {
+    background: #002200 !important;
+    border: 2px solid #00ffaa !important;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+.export-menu-item {
+    color: #61d0eb !important;
+    font-family: 'Courier New', Courier, monospace !important;
+}
+
+.export-menu-item:hover {
+    background: rgba(97, 208, 235, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.panel-url {
+    font-size: 14px !important;
+    color: #4ade80 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    line-height: 1.6 !important;
+    margin: 10px 10px 20px 10px !important;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+    word-break: break-word !important;
+    padding: 15px !important;
+    background: rgba(0, 255, 170, 0.05) !important;
+    border: 1px solid rgba(0, 255, 170, 0.2) !important;
+    border-radius: 8px !important;
+}
+
+.panel-url::before {
+    content: "The Guide has this to say about " !important;
+    color: #61d0eb !important;
+    font-size: 15px !important;
+    font-weight: bold !important;
+    display: block !important;
+    margin-bottom: 8px !important;
+}
+
+/* ─── Popup Header Redesign ──────────────────────────────────────────────── */
+
+.popup-header {
+    background: transparent !important;
+    border: none !important;
+    position: relative !important;
+    text-align: center !important;
+    padding-top: 10px !important;
+    padding-bottom: 5px !important;
+    box-shadow: none !important;
+}
+
+/* Hide standard logo, ASS, and ASCII Smuggling Surfacer */
+.popup-logo {
+    display: none !important;
+}
+
+.popup-header::after {
+    content: "Where is your towel?" !important;
+    display: block !important;
+    color: #61d0eb !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+}
