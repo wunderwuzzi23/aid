@@ -376,16 +376,15 @@
         const runs = [], seen = new Set();
         for (const { findings } of results) {
             for (const g of groupConsecutive(findings)) {
-                if (!g.every(c => c.type === 'tag')) continue;
-                const d = decodeTagGroup(g);
+                const d = decodeGroup(g);
                 if (!d || seen.has(d)) continue;
                 seen.add(d);
                 runs.push(d);
             }
         }
         return runs.length > max
-            ? runs.slice(0, max).map(r => `'${r}'`).join('; ') + `; +${runs.length - max} more`
-            : runs.map(r => `'${r}'`).join('; ');
+            ? runs.slice(0, max).map(r => `'${r}'`).join('\n\n') + `\n\n+${runs.length - max} more`
+            : runs.map(r => `'${r}'`).join('\n\n');
     }
 
     function getCategoryBreakdown(results) {
