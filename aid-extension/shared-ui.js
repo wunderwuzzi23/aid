@@ -334,3 +334,17 @@ function applyTheme(themeName) {
     }
     link.href = `themes/${themeName}.css`;
 }
+
+// ─── Utility Functions ──────────────────────────────────────────────────
+
+function debounce(fn, ms) {
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+
+function esc(str) {
+    if (!str) return '';
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}

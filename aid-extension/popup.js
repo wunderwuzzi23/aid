@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         if (s.autoScan && !settings.autoScan) {
-            chrome.permissions.request({ origins: ['<all_urls>'] }, granted => {
+            chrome.permissions.request({ origins: ['<all_urls>'] }).then(granted => {
                 if (!granted) { optAutoScan.checked = false; s.autoScan = false; }
                 applyTheme(s.visualProfile);
                 chrome.runtime.sendMessage({ action: 'saveSettings', settings: s });
@@ -101,10 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (tab) chrome.runtime.sendMessage({ action: 'triggerScan', tabId: tab.id });
     }
 
-    function debounce(fn, ms) {
-        let timer;
-        return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
-    }
+    // Utility: debounce (now imported from shared-ui.js)
     const saveSettingsDebounced = debounce(saveSettings, 600);
 
     function updateSeqPreview() {

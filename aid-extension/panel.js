@@ -4,9 +4,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-    window.onerror = function (msg, url, line, col, error) {
-        document.body.innerHTML += `<div style="color:red; font-family:monospace; padding: 10px; background: black; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999;">ERROR: ${msg}<br/>Line: ${line}<br/>${error?.stack || ''}</div>`;
-    };
     const emptyState = document.getElementById('empty-state');
     const resultsContainer = document.getElementById('results-container');
     const pageUrl = document.getElementById('page-url');
@@ -565,11 +562,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         reRenderDetections();
     });
 
-    // Utility: debounce
-    function debounce(fn, ms) {
-        let timer;
-        return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
-    }
+    // Utility: debounce (now imported from shared-ui.js)
 
     if (sbAutoThreshold) {
         sbAutoThreshold.addEventListener('input', debounce(() => {
@@ -745,14 +738,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         download(rows.join('\n'), `ass-report-${Date.now()}.csv`, 'text/csv');
     });
 
-    // ─── Helpers ──────────────────────────────────────────────────────
-
-    function esc(str) {
-        if (!str) return '';
-        const d = document.createElement('div');
-        d.textContent = str;
-        return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
+    // esc function is now imported from shared-ui.js
 
     function csvEsc(str) {
         if (!str) return '';

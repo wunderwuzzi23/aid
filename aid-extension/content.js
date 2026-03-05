@@ -891,7 +891,7 @@
     // ─── Auto-scan ────────────────────────────────────────────────────────
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        chrome.storage.local.get('settings', data => {
+        chrome.storage.local.get('settings').then(data => {
             if (data.settings?.autoScan) requestIdleCallback(() => scanPage(data.settings));
         });
     }

@@ -35,10 +35,9 @@ const tabResults = new Map(); // tabId → scan results
 
 // ─── Initialization ─────────────────────────────────────────────────────────
 
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.get('settings', data => {
-        if (!data.settings) chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
-    });
+chrome.runtime.onInstalled.addListener(async () => {
+    const data = await chrome.storage.local.get('settings');
+    if (!data.settings) chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
     if (chrome.sidePanel) {
         chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
     }
@@ -86,7 +85,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return true;
 
         case 'saveSettings':
-            chrome.storage.local.set({ settings: message.settings }, () => {
+            chrome.storage.local.set({ settings: message.settings }).then(() => {
                 sendResponse({ ok: true });
                 handleAutoScanToggle(message.settings);
             });
@@ -135,12 +134,12 @@ function registerAutoScan() {
         js: ['unicode-chars.js', 'content.js'],
         css: ['styles.css'],
         runAt: 'document_idle',
-    }]).catch((e) => { console.debug('ASS: Script unregister check:', e); });
+    }]).catch(() => { });
 }
 
 /** Unregisters the auto-scan content scripts. */
 function unregisterAutoScan() {
-    chrome.scripting.unregisterContentScripts({ ids: ['ass-autoscan'] }).catch((e) => { console.debug('ASS: Script unregister check:', e); });
+    chrome.scripting.unregisterContentScripts({ ids: ['ass-autoscan'] }).catch(() => { });
 }
 
 // ─── Tab Cleanup ────────────────────────────────────────────────────────────
@@ -156,10 +155,9 @@ chrome.tabs.onUpdated.addListener((tabId, info) => {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function getSettings() {
-    return new Promise(resolve => {
-        chrome.storage.local.get('settings', data => resolve(data.settings || DEFAULT_SETTINGS));
-    });
+async function getSettings() {
+    const data = await chrome.storage.local.get('settings');
+    return data.settings || DEFAULT_SETTINGS;
 }
 
 // Restore auto-scan on startup
