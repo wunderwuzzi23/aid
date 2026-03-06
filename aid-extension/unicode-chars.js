@@ -276,3 +276,32 @@ function getAllKnownCharacters() {
   _allKnownCharacters = list;
   return list;
 }
+
+// ─── Shared Character Name Resolver ─────────────────────────────────────────
+// Resolves a full verbose display name for a single character, used by
+// panel.js and popup.js for filter dropdowns. Defined here to avoid duplication.
+
+function resolveCharName(char) {
+  const cp = char.codePointAt(0);
+  const codeStr = `U+${cp.toString(16).toUpperCase().padStart(4, '0')}`;
+
+  if (INVISIBLE_CHARS[char])
+    return `${codeStr}  ${INVISIBLE_CHARS[char]}`;
+  if (CONFUSABLE_SPACE_CHARS[char])
+    return `${codeStr}  ${CONFUSABLE_SPACE_CHARS[char]}`;
+  if (isUnicodeTag(cp)) {
+    const decoded = decodeUnicodeTag(cp);
+    return `${codeStr}  UNICODE TAG (ASCII: ${decoded})`;
+  }
+  if (isVariationSelectorSupplement(cp)) {
+    const name = variationSelectorName(cp);
+    const lowByte = cp - VS_SUPPLEMENT_START;
+    const asciiStr = (lowByte >= 32 && lowByte <= 126) ? String.fromCharCode(lowByte) : `0x${lowByte.toString(16).padStart(2, '0')}`;
+    return `${codeStr}  ${name} (ASCII: ${asciiStr})`;
+  }
+  if (isControlChar(char))
+    return `${codeStr}  ${controlCharName(char)}`;
+  if (isSpaceSeparator(char))
+    return `${codeStr}  ${zsCharName(char)}`;
+  return codeStr;
+}
