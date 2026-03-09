@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const sneakyDecodedStrings = rendered.sneakyDecodedStrings || [];
         updateSettingsAlert();
 
-        renderTagRuns(r.tagRunSummary, sneakyDecodedStrings);
+        renderTagRuns(r.allDecodedRuns || [], sneakyDecodedStrings);
     }
 
     function renderSummary(s) {
@@ -172,16 +172,73 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function renderTagRuns(tagSummary, decodedStrings) {
-        const combinedSummary = [];
-        if (tagSummary) combinedSummary.push(tagSummary);
-        if (decodedStrings.length) {
-            combinedSummary.push(...decodedStrings.map(s => `'${s}'`));
+    function renderTagRuns(allDecodedRuns, sneakyDecodedStrings) {
+        // allDecodedRuns is an array of { text, cat } objects (from content.js)
+        // sneakyDecodedStrings is an array of plain strings (from sneaky-bits decoder)
+        const CAT_LABEL = {
+            tag: 'Unicode Tags',
+            vs: 'Variation Selectors',
+            zw: 'Zero-Width',
+            bidi: 'Bidi Marks',
+            op: 'Invisible Op',
+            dep: 'Deprecated',
+            sp: 'Space-Like',
+            cc: 'Control Char',
+            zs: 'Space Sep',
+            other: 'Other',
+        };
+
+        // Normalise both sources into { text, cat } objects, deduplicate by text
+        const seen = new Set();
+        const combined = [];
+        for (const run of allDecodedRuns) {
+            const text = typeof run === 'string' ? run : run.text;
+            const cat = (typeof run === 'object' && run.cat) ? run.cat : 'other';
+            if (!seen.has(text)) { seen.add(text); combined.push({ text, cat }); }
+        }
+        for (const s of sneakyDecodedStrings) {
+            if (!seen.has(s)) { seen.add(s); combined.push({ text: s, cat: 'other' }); }
         }
 
-        if (combinedSummary.length > 0) {
+        if (combined.length > 0) {
             tagRunsSection.style.display = 'block';
-            tagRuns.innerText = combinedSummary.join('\n\n');
+
+            // Aggregate counts for summary labels
+            const catCounts = {};
+            for (const { cat } of combined) {
+                catCounts[cat] = (catCounts[cat] || 0) + 1;
+            }
+
+            // Render summary labels in header
+            const summaryLabelsHtml = Object.entries(catCounts)
+                .sort((a, b) => b[1] - a[1]) // highest count first
+                .map(([c, count]) => `<span class="tag-run-cat-label" data-cat="${c}">${CAT_LABEL[c] || c} (${count})</span>`)
+                .join('');
+
+            const summaryContainer = document.getElementById('tag-runs-summary-labels');
+            if (summaryContainer) {
+                summaryContainer.innerHTML = summaryLabelsHtml;
+            }
+
+            const maxInitial = 5;
+            const renderList = (limit) => {
+                const visible = limit ? combined.slice(0, limit) : combined;
+                let html = visible.map(({ text, cat }) =>
+                    `<div class="tag-run-item" data-cat="${cat}">'${esc(text)}'</div>`
+                ).join('');
+
+                if (limit && combined.length > limit) {
+                    html += `<div class="tag-run-more" id="tag-runs-show-more">+${combined.length - limit} more</div>`;
+                }
+                tagRuns.innerHTML = html;
+
+                const showMore = document.getElementById('tag-runs-show-more');
+                if (showMore) {
+                    showMore.addEventListener('click', () => renderList(null));
+                }
+            };
+
+            renderList(maxInitial);
         } else {
             tagRunsSection.style.display = 'none';
         }

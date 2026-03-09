@@ -283,8 +283,21 @@
         return findings;
     }
 
+    // ─── Encoding Scheme Classifier ────────────────────────────────────────
+    // Determines the encoding scheme of a finding for group-splitting.
+    // Adjacent characters with different encoding schemes are split into
+    // separate groups so each can be decoded independently.
+
+    function getEncodingScheme(finding) {
+        if (finding.type === 'tag') return 'tag';
+        const cp = finding.char.codePointAt(0);
+        if (isVariationSelectorSupplement(cp)) return 'vs_supplement';
+        return 'other';
+    }
+
     // ─── Grouping ──────────────────────────────────────────────────────────
     // Groups consecutive findings, accounting for surrogate pairs (charLen > 1).
+    // Splits at encoding-type boundaries (e.g. tag → vs_supplement).
 
     function groupConsecutive(findings) {
         if (!findings.length) return [];
@@ -293,7 +306,9 @@
 
         for (let i = 1; i < sorted.length; i++) {
             const prev = groups.at(-1).at(-1);
-            if (sorted[i].charIndex === prev.charIndex + prev.charLen) {
+            const isAdjacent = sorted[i].charIndex === prev.charIndex + prev.charLen;
+            const sameEncoding = getEncodingScheme(sorted[i]) === getEncodingScheme(prev);
+            if (isAdjacent && sameEncoding) {
                 groups.at(-1).push(sorted[i]);
             } else {
                 groups.push([sorted[i]]);
@@ -372,19 +387,37 @@
     // ─── Summarization Helpers ─────────────────────────────────────────────
 
 
-    function summarizeTagRuns(results, max = 5) {
+    function summarizeTagRuns(results) {
+        const runs = getAllDecodedRuns(results);
+        const max = 5;
+        return runs.length > max
+            ? runs.slice(0, max).map(r => `'${r}'`).join('\n\n') + `\n\n+${runs.length - max} more`
+            : runs.map(r => `'${r}'`).join('\n\n');
+    }
+
+    function getAllDecodedRuns(results) {
+        const CAT_SLUG = {
+            'Unicode Tags': 'tag',
+            'Variation Selectors': 'vs',
+            'Zero-Width & Joiners': 'zw',
+            'Directional & Bidi Marks': 'bidi',
+            'Invisible Operators': 'op',
+            'Deprecated Format Controls': 'dep',
+            'Space-Like / Blank Chars': 'sp',
+            'Control Characters (Cc)': 'cc',
+            'Space Separators (Zs)': 'zs',
+        };
         const runs = [], seen = new Set();
         for (const { findings } of results) {
             for (const g of groupConsecutive(findings)) {
                 const d = decodeGroup(g);
                 if (!d || seen.has(d)) continue;
                 seen.add(d);
-                runs.push(d);
+                const cat = CAT_SLUG[classifyCategory(g[0])] || 'other';
+                runs.push({ text: d, cat });
             }
         }
-        return runs.length > max
-            ? runs.slice(0, max).map(r => `'${r}'`).join('\n\n') + `\n\n+${runs.length - max} more`
-            : runs.map(r => `'${r}'`).join('\n\n');
+        return runs;
     }
 
     function getCategoryBreakdown(results) {
@@ -468,6 +501,17 @@
                         ? (group[0].detail || '')
                         : '';
                     span.dataset.category = classifyCategory(group[0]);
+                    span.dataset.cat = {
+                        'Unicode Tags': 'tag',
+                        'Variation Selectors': 'vs',
+                        'Zero-Width & Joiners': 'zw',
+                        'Directional & Bidi Marks': 'bidi',
+                        'Invisible Operators': 'op',
+                        'Deprecated Format Controls': 'dep',
+                        'Space-Like / Blank Chars': 'sp',
+                        'Control Characters (Cc)': 'cc',
+                        'Space Separators (Zs)': 'zs',
+                    }[span.dataset.category] || 'other';
                     span.dataset.tooltipData = JSON.stringify({
                         severity,
                         charName: group.length === 1 ? group[0].name : `${group.length} invisible characters`,
@@ -837,6 +881,7 @@
             suspicion: pageSuspicion,
             categoryBreakdown: getCategoryBreakdown(allResults),
             tagRunSummary: summarizeTagRuns(allResults),
+            allDecodedRuns: getAllDecodedRuns(allResults),
             detections,
             settings,
             activeTheme: window.__assActiveTheme || settings.visualProfile || 'default',

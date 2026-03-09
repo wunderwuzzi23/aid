@@ -172,7 +172,8 @@ div[style*="color:#888"] {
 .ass-tooltip-decoded,
 .ass-tooltip-decoded code,
 .sb-decoded-text,
-.tag-runs {
+.tag-runs,
+.tag-run-item {
     color: #fac610 !important;
     font-weight: bold !important;
     text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;

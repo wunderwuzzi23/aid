@@ -447,6 +447,158 @@ body {
     word-break: break-all;
 }
 
+.tag-run-item {
+    margin-bottom: 8px;
+    border-left: 3px solid transparent;
+    padding-left: 8px;
+}
+
+.tag-run-item:last-child {
+    margin-bottom: 0;
+}
+
+.tag-run-more {
+    margin-top: 10px;
+    color: #4ade80;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+.tag-run-more:hover {
+    color: #00ff88;
+}
+
+/* ─── Decoded run category chip ──────────────────────────────────────────── */
+
+.tag-run-cat-label {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    /* default – overridden per-category below */
+    color: #9e9e9e;
+    background: rgba(158, 158, 158, 0.1);
+    border: 1px solid rgba(158, 158, 158, 0.3);
+}
+
+/* Per-category text color for decoded run items */
+.tag-run-item[data-cat="tag"] {
+    color: #b57bee;
+    border-left-color: #b57bee;
+}
+
+.tag-run-item[data-cat="vs"] {
+    color: #7bcf6e;
+    border-left-color: #7bcf6e;
+}
+
+.tag-run-item[data-cat="zw"] {
+    color: #4dd0e1;
+    border-left-color: #4dd0e1;
+}
+
+.tag-run-item[data-cat="bidi"] {
+    color: #ff7043;
+    border-left-color: #ff7043;
+}
+
+.tag-run-item[data-cat="op"] {
+    color: #f06292;
+    border-left-color: #f06292;
+}
+
+.tag-run-item[data-cat="dep"] {
+    color: #ffb300;
+    border-left-color: #ffb300;
+}
+
+.tag-run-item[data-cat="sp"] {
+    color: #64b5f6;
+    border-left-color: #64b5f6;
+}
+
+.tag-run-item[data-cat="cc"] {
+    color: #ef5350;
+    border-left-color: #ef5350;
+}
+
+.tag-run-item[data-cat="zs"] {
+    color: #26a69a;
+    border-left-color: #26a69a;
+}
+
+.tag-run-item[data-cat="other"] {
+    color: #9e9e9e;
+    border-left-color: #9e9e9e;
+}
+
+/* Header summary chips colors */
+.tag-run-cat-label[data-cat="tag"] {
+    color: #b57bee;
+    background: rgba(181, 123, 238, 0.1);
+    border-color: rgba(181, 123, 238, 0.3);
+}
+
+.tag-run-cat-label[data-cat="vs"] {
+    color: #7bcf6e;
+    background: rgba(123, 207, 110, 0.1);
+    border-color: rgba(123, 207, 110, 0.3);
+}
+
+.tag-run-cat-label[data-cat="zw"] {
+    color: #4dd0e1;
+    background: rgba(77, 208, 225, 0.1);
+    border-color: rgba(77, 208, 225, 0.3);
+}
+
+.tag-run-cat-label[data-cat="bidi"] {
+    color: #ff7043;
+    background: rgba(255, 112, 67, 0.1);
+    border-color: rgba(255, 112, 67, 0.3);
+}
+
+.tag-run-cat-label[data-cat="op"] {
+    color: #f06292;
+    background: rgba(240, 98, 146, 0.1);
+    border-color: rgba(240, 98, 146, 0.3);
+}
+
+.tag-run-cat-label[data-cat="dep"] {
+    color: #ffb300;
+    background: rgba(255, 179, 0, 0.1);
+    border-color: rgba(255, 179, 0, 0.3);
+}
+
+.tag-run-cat-label[data-cat="sp"] {
+    color: #64b5f6;
+    background: rgba(100, 181, 246, 0.1);
+    border-color: rgba(100, 181, 246, 0.3);
+}
+
+.tag-run-cat-label[data-cat="cc"] {
+    color: #ef5350;
+    background: rgba(239, 83, 80, 0.1);
+    border-color: rgba(239, 83, 80, 0.3);
+}
+
+.tag-run-cat-label[data-cat="zs"] {
+    color: #26a69a;
+    background: rgba(38, 166, 154, 0.1);
+    border-color: rgba(38, 166, 154, 0.3);
+}
+
+.tag-run-cat-label[data-cat="other"] {
+    color: #9e9e9e;
+    background: rgba(158, 158, 158, 0.1);
+    border-color: rgba(158, 158, 158, 0.3);
+}
+
+
 /* ─── Export ──────────────────────────────────────────────────────────────── */
 
 .panel-export {
