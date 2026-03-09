@@ -215,3 +215,137 @@
   color: #888;
   font-style: italic;
 }
+
+/* ─── Tooltip: Military Scanner Theme (Default) ─────────────────────────── */
+
+.ass-tooltip[data-theme="military-scanner"] {
+  background: #000000;
+  color: #4ade80;
+  border: 1px solid #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.2), inset 0 0 30px rgba(0, 0, 0, 0.5);
+  font-family: 'Cascadia Code', 'Fira Code', 'Courier New', Courier, monospace;
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-header {
+  color: #4ade80;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 5px rgba(74, 222, 128, 0.6);
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-divider {
+  background: rgba(74, 222, 128, 0.3);
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-row {
+  color: #22c55e;
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-row b {
+  color: #4ade80;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-row code {
+  background: rgba(74, 222, 128, 0.1);
+  color: #00ff88;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  text-shadow: 0 0 4px rgba(0, 255, 136, 0.5);
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-decoded,
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-decoded code {
+  color: #00ff88;
+  text-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-hint {
+  color: #22c55e;
+  opacity: 0.7;
+}
+
+/* ─── Tooltip: Hitchhiker Theme ──────────────────────────────────────────── */
+
+.ass-tooltip[data-theme="hitchhiker"] {
+  background: #001a00;
+  color: #4ade80;
+  border: 2px solid #00ffaa;
+  box-shadow: 2px 2px 0 #005500, 0 0 20px rgba(74, 222, 128, 0.2);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-header {
+  color: #ff0055;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-divider {
+  background: rgba(74, 222, 128, 0.3);
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-row b {
+  color: #61d0eb;
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-row code {
+  background: rgba(250, 198, 16, 0.15);
+  color: #fac610;
+  border: 1px solid rgba(250, 198, 16, 0.3);
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-decoded,
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-decoded code {
+  color: #fac610;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-hint {
+  color: #fac610;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* ─── Tooltip: Retro Gemini Theme ────────────────────────────────────────── */
+
+.ass-tooltip[data-theme="retro-gemini"] {
+  background: linear-gradient(135deg, #1a1a3e 0%, #0f0f2a 100%);
+  color: #e0e0e0;
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(124, 58, 237, 0.15);
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-header {
+  background: linear-gradient(90deg, #00ff88, #00aaff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-divider {
+  background: rgba(124, 58, 237, 0.3);
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-row b {
+  color: #8888aa;
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-row code {
+  background: rgba(0, 255, 136, 0.08);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-decoded,
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-decoded code {
+  color: #00ff88;
+  font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-hint {
+  color: #7c3aed;
+}

@@ -581,6 +581,8 @@
         tooltipEl.className = 'ass-tooltip';
         tooltipEl.style.display = 'none';
         tooltipEl.style.pointerEvents = 'auto'; // Allow interaction
+        const activeTheme = window.__assActiveTheme || settings.visualProfile || 'default';
+        tooltipEl.dataset.theme = (activeTheme === 'default' || !activeTheme) ? 'military-scanner' : activeTheme;
         document.body.appendChild(tooltipEl);
 
         let showTimer, hideTimer;
@@ -689,6 +691,10 @@
     function showTooltip(hlEl) {
         if (!tooltipEl) return;
         if (settings.disableTooltips) return;
+
+        // Keep tooltip theme in sync with the active visual profile
+        const currentTheme = window.__assActiveTheme || settings.visualProfile || 'default';
+        tooltipEl.dataset.theme = (currentTheme === 'default' || !currentTheme) ? 'military-scanner' : currentTheme;
         let data;
         try { data = JSON.parse(hlEl.dataset.tooltipData); } catch (e) { return; }
 
