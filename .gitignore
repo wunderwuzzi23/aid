@@ -2,3 +2,7 @@
 .env
 go/
 __pycache__/
+.agents/*
+aid-extension/dist/*
+.code-review-tracker.md
+*.bak

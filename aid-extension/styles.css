@@ -1,0 +1,351 @@
+/* ─── ASS – ASCII Smuggling Surfacer · Injected Page Styles ─────────────── */
+
+/* ─── Highlight Wrappers ─────────────────────────────────────────────────── */
+
+.ass-hl {
+  position: relative;
+  display: inline;
+  border-radius: 2px;
+  cursor: help;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+/* Severity colors */
+/* Classic style (original) */
+.ass-hl[data-style="classic"][data-severity="info"] {
+  background: rgba(33, 150, 243, 0.12);
+  box-shadow: 0 0 6px 1px rgba(33, 150, 243, 0.5);
+}
+
+.ass-hl[data-style="classic"][data-severity="medium"] {
+  background: rgba(255, 193, 7, 0.15);
+  box-shadow: 0 0 6px 1px rgba(255, 193, 7, 0.6);
+}
+
+.ass-hl[data-style="classic"][data-severity="high"] {
+  background: rgba(255, 152, 0, 0.15);
+  box-shadow: 0 0 8px 2px rgba(255, 152, 0, 0.6);
+}
+
+.ass-hl[data-style="classic"][data-severity="critical"] {
+  background: rgba(244, 67, 54, 0.18);
+  box-shadow: 0 0 10px 3px rgba(244, 67, 54, 0.7);
+}
+
+/* Military style (modern default) - sharp, professional highlight */
+.ass-hl[data-style="military"] {
+  background: rgba(37, 99, 235, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.25);
+  border-radius: 2px;
+}
+
+.ass-hl[data-style="military"][data-severity="info"] {
+  background: rgba(33, 150, 243, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(33, 150, 243, 0.3);
+}
+
+.ass-hl[data-style="military"][data-severity="medium"] {
+  background: rgba(255, 193, 7, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 193, 7, 0.4);
+}
+
+.ass-hl[data-style="military"][data-severity="high"] {
+  background: rgba(255, 152, 0, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(255, 152, 0, 0.5);
+}
+
+.ass-hl[data-style="military"][data-severity="critical"] {
+  background: rgba(244, 67, 54, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(244, 67, 54, 0.6);
+}
+
+/* Nimbus style - inobtrusive halo */
+.ass-hl[data-style="nimbus"] {
+  background: none !important;
+  box-shadow: none !important;
+  text-shadow: 0 0 4px currentColor;
+  border-bottom: 1px dashed currentColor;
+}
+
+.ass-hl[data-style="nimbus"][data-severity="info"] {
+  color: #2196f3;
+}
+
+.ass-hl[data-style="nimbus"][data-severity="medium"] {
+  color: #ffc107;
+}
+
+.ass-hl[data-style="nimbus"][data-severity="high"] {
+  color: #ff9800;
+}
+
+.ass-hl[data-style="nimbus"][data-severity="critical"] {
+  color: #f44336;
+}
+
+/* Ghost style (hidden) - no markers or highlights on page */
+.ass-hl[data-style="ghost"] {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  text-shadow: none !important;
+}
+
+.ass-hl[data-style="ghost"] .ass-marker {
+  display: none !important;
+}
+
+/* Legacy support (fallback) */
+.ass-hl:not([data-style]) {
+  background: rgba(255, 193, 7, 0.1);
+  box-shadow: 0 0 4px rgba(255, 193, 7, 0.4);
+}
+
+/* Hover glow */
+.ass-hl:hover {
+  box-shadow: 0 0 14px 5px currentColor;
+  filter: brightness(1.2);
+}
+
+/* Group marker — subtle, hoverable indicator */
+.ass-marker {
+  display: inline-block !important;
+  min-width: 8px !important;
+  height: 12px !important;
+  line-height: 12px !important;
+  font-size: 10px !important;
+  font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  opacity: 0.8;
+  vertical-align: baseline;
+  cursor: help;
+  user-select: none;
+  color: inherit;
+  margin: 0 1px;
+}
+
+.ass-hl:hover .ass-marker {
+  opacity: 1;
+}
+
+/* Expanded marker shows decoded message */
+.ass-hl.expanded .ass-marker {
+  color: #00ff88;
+  opacity: 1;
+  font-size: 11px;
+  height: auto !important;
+  line-height: normal !important;
+  word-break: break-all;
+  white-space: normal;
+}
+
+/* Pulse animation for jump-to */
+@keyframes ass-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px 2px currentColor;
+  }
+
+  50% {
+    box-shadow: 0 0 24px 8px currentColor;
+    filter: brightness(1.5);
+  }
+}
+
+.ass-hl.pulse {
+  animation: ass-pulse 0.6s ease-in-out 3;
+}
+
+/* ─── Tooltip ────────────────────────────────────────────────────────────── */
+
+.ass-tooltip {
+  position: absolute;
+  z-index: 2147483647;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 220px;
+  max-width: 380px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.ass-tooltip-header {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.ass-tooltip-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 6px 0;
+}
+
+.ass-tooltip-row {
+  margin: 3px 0;
+}
+
+.ass-tooltip-row b {
+  color: #a0a0c0;
+}
+
+.ass-tooltip-row code {
+  background: rgba(0, 255, 136, 0.1);
+  color: #00ff88;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  font-size: 11px;
+}
+
+.ass-tooltip-decoded {
+  word-break: break-all;
+}
+
+.ass-tooltip-hint {
+  font-size: 10px;
+  color: #888;
+  font-style: italic;
+}
+
+/* ─── Tooltip: Military Scanner Theme (Default) ─────────────────────────── */
+
+.ass-tooltip[data-theme="military-scanner"] {
+  background: #000000;
+  color: #4ade80;
+  border: 1px solid #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.2), inset 0 0 30px rgba(0, 0, 0, 0.5);
+  font-family: 'Cascadia Code', 'Fira Code', 'Courier New', Courier, monospace;
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-header {
+  color: #4ade80;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 5px rgba(74, 222, 128, 0.6);
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-divider {
+  background: rgba(74, 222, 128, 0.3);
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-row {
+  color: #22c55e;
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-row b {
+  color: #4ade80;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-row code {
+  background: rgba(74, 222, 128, 0.1);
+  color: #00ff88;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  text-shadow: 0 0 4px rgba(0, 255, 136, 0.5);
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-decoded,
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-decoded code {
+  color: #00ff88;
+  text-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
+}
+
+.ass-tooltip[data-theme="military-scanner"] .ass-tooltip-hint {
+  color: #22c55e;
+  opacity: 0.7;
+}
+
+/* ─── Tooltip: Hitchhiker Theme ──────────────────────────────────────────── */
+
+.ass-tooltip[data-theme="hitchhiker"] {
+  background: #001a00;
+  color: #4ade80;
+  border: 2px solid #00ffaa;
+  box-shadow: 2px 2px 0 #005500, 0 0 20px rgba(74, 222, 128, 0.2);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-header {
+  color: #ff0055;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-divider {
+  background: rgba(74, 222, 128, 0.3);
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-row b {
+  color: #61d0eb;
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-row code {
+  background: rgba(250, 198, 16, 0.15);
+  color: #fac610;
+  border: 1px solid rgba(250, 198, 16, 0.3);
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-decoded,
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-decoded code {
+  color: #fac610;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.ass-tooltip[data-theme="hitchhiker"] .ass-tooltip-hint {
+  color: #fac610;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* ─── Tooltip: Retro Gemini Theme ────────────────────────────────────────── */
+
+.ass-tooltip[data-theme="retro-gemini"] {
+  background: linear-gradient(135deg, #1a1a3e 0%, #0f0f2a 100%);
+  color: #e0e0e0;
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(124, 58, 237, 0.15);
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-header {
+  background: linear-gradient(90deg, #00ff88, #00aaff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-divider {
+  background: rgba(124, 58, 237, 0.3);
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-row b {
+  color: #8888aa;
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-row code {
+  background: rgba(0, 255, 136, 0.08);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-decoded,
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-decoded code {
+  color: #00ff88;
+  font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+}
+
+.ass-tooltip[data-theme="retro-gemini"] .ass-tooltip-hint {
+  color: #7c3aed;
+}
