@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS = {
     highlightStyle: 'military',
     autoHitchhiker: false,
     autoHitchhikerThreshold: 800,
+    disableTooltips: false,
 };
 
 const BADGE_COLORS = {

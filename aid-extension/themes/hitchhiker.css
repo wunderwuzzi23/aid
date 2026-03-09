@@ -546,3 +546,30 @@ body.panel-body {
     font-family: 'Courier New', Courier, monospace !important;
     text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
 }
+
+/* ─── Toggle Detail Panel Button ─────────────────────────────────────────── */
+
+.btn-panel {
+    background: rgba(255, 0, 85, 0.15) !important;
+    border: 2px solid #ff0055 !important;
+    border-radius: 4px !important;
+    color: #fac610 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 0, 85, 0.25) !important;
+    transition: all 0.2s !important;
+}
+
+.btn-panel:hover {
+    background: rgba(255, 0, 85, 0.3) !important;
+    border-color: #fac610 !important;
+    color: #ffffff !important;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 0, 85, 0.5) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-panel:active {
+    transform: translateY(0) !important;
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+}

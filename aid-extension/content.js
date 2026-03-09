@@ -688,6 +688,7 @@
 
     function showTooltip(hlEl) {
         if (!tooltipEl) return;
+        if (settings.disableTooltips) return;
         let data;
         try { data = JSON.parse(hlEl.dataset.tooltipData); } catch (e) { return; }
 

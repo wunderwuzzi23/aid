@@ -467,6 +467,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const panelOptCc = document.getElementById('panel-opt-cc');
     const panelOptZs = document.getElementById('panel-opt-zs');
     const panelOptExpandToNames = document.getElementById('panel-opt-expand-to-names');
+    const panelOptDisableTooltips = document.getElementById('panel-opt-disable-tooltips');
     const panelOptMinSeq = document.getElementById('panel-opt-min-seq');
     const panelOptMaxSeq = document.getElementById('panel-opt-max-seq');
     const panelSeqDrawer = document.getElementById('panel-seq-length-drawer');
@@ -651,6 +652,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             detectControlChars: panelOptCc.checked,
             detectSpaceSeparators: panelOptZs.checked,
             expandToNames: panelOptExpandToNames ? panelOptExpandToNames.checked : false,
+            disableTooltips: panelOptDisableTooltips ? panelOptDisableTooltips.checked : false,
             highlightStyle: panelHighlightStyle ? panelHighlightStyle.value : 'nimbus',
             sbConfig: sbConfig,
             sbAutoThreshold: sbAutoThreshold ? parseInt(sbAutoThreshold.value, 10) || 50 : 50,
@@ -674,7 +676,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Checkbox & number input handlers
     const saveFilterSettingsDebounced = debounce(saveFilterSettings, 600);
 
-    [panelOptNbsp, panelOptConfusable, panelOptCc, panelOptZs, panelOptExpandToNames, panelOptFuzzySearch].forEach(el => {
+    [panelOptNbsp, panelOptConfusable, panelOptCc, panelOptZs, panelOptExpandToNames, panelOptDisableTooltips, panelOptFuzzySearch].forEach(el => {
         if (el) el.addEventListener('change', saveFilterSettings)
     });
     if (panelVisualProfile) panelVisualProfile.addEventListener('change', () => {
@@ -702,6 +704,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentHighlightStyle = settings.highlightStyle || 'nimbus';
         panelOptConfusable.checked = settings.detectConfusableSpaces || false;
         if (panelOptExpandToNames) panelOptExpandToNames.checked = settings.expandToNames || false;
+        if (panelOptDisableTooltips) panelOptDisableTooltips.checked = settings.disableTooltips || false;
 
         // Load dynamic decoder settings or migrate old ones
         if (settings.sbConfig) {
