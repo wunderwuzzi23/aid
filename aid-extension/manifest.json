@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ASS - ASCII Smuggling Surfacer",
-  "version": "1.0.0",
+  "version": "1.0.11",
   "description": "Detect invisible Unicode steganography & smuggling attacks in web pages",
   "permissions": [
     "activeTab",
