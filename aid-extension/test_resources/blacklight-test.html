@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>AID Extension Test Page — Invisible Unicode Payloads</title></head>
+<body style="font-family:sans-serif;max-width:800px;margin:40px auto;padding:20px;">
+<h1>AID Extension Test Page</h1>
+<p>This page contains hidden Unicode payloads for testing the AID browser extension.
+Open the extension panel after loading this page to verify detection and decoding.</p>
+
+<h2>Test 1: Unicode Tags (ASCII Smuggling)</h2>
+<p>This sentence looks normal.&#917576;&#917577;&#917572;&#917572;&#917573;&#917582;&#917599;&#917587;&#917581;&#917589;&#917575;&#917575;&#917580;&#917573;&#917572;&#917599;&#917584;&#917569;&#917593;&#917580;&#917583;&#917569;&#917572; But it contains a hidden message encoded in Unicode Tag characters.</p>
+
+<h2>Test 2: Variation Selector Supplements (VS17-256)</h2>
+<p>Another innocent looking paragraph.&#917827;&#917813;&#917811;&#917826;&#917813;&#917828; With VS17-256 encoded data hidden inline.</p>
+
+<h2>Test 3: Zero-Width Binary Steganography</h2>
+<p>Clean text here.&#8203;&#8204;&#8203;&#8204;&#8203;&#8203;&#8204;&#8204;&#8203;&#8204;&#8203;&#8203;&#8204;&#8204;&#8203;&#8204;&#8203;&#8204;&#8203;&#8204;&#8203;&#8204;&#8203;&#8204;&#8203;&#8204;&#8203;&#8203;&#8203;&#8204;&#8204;&#8204;&#8203;&#8204;&#8203;&#8203;&#8203;&#8204;&#8204;&#8204;&#8203;&#8204;&#8203;&#8203;&#8204;&#8204;&#8203;&#8203;&#8203;&#8204;&#8203;&#8203;&#8203;&#8204;&#8203;&#8204;&#8203;&#8204;&#8203;&#8203;&#8203;&#8204;&#8203;&#8203; Binary data hidden via ZWSP/ZWNJ pairs encoding a full word.</p>
+
+<h2>Test 4: Bidirectional Control Marks</h2>
+<p>Normal text&#8206;&#8207;&#8234;&#8235;&#8236; with directional formatting marks injected (trojan source style).</p>
+
+<h2>Test 5: Soft Hyphens (Document Fingerprinting)</h2>
+<p>Imp&#173;ort&#173;ant doc&#173;um&#173;ent with soft hyphens inserted for text fingerprinting.</p>
+
+<h2>Expected Results</h2>
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;">
+<tr><th>Test</th><th>Type</th><th>Count</th><th>Expected Decode</th><th>Auto-Detection</th></tr>
+<tr><td>1</td><td>Unicode Tags (U+E0000)</td><td>22</td><td>HIDDEN_SMUGGLED_PAYLOAD</td><td>Should trigger Critical suspicion on tag run</td></tr>
+<tr><td>2</td><td>VS Supplements (VS17-256)</td><td>6</td><td>SECRET</td><td>Detected as variation selectors</td></tr>
+<tr><td>3</td><td>ZWSP/ZWNJ Binary</td><td>64</td><td>SMUGGLED (Config A or B)</td><td>Should trigger sneaky bits auto-detection (64 chars, 100% two-char alternation, well above 70% threshold and 12-char minimum)</td></tr>
+<tr><td>4</td><td>BiDi Marks</td><td>5</td><td>N/A</td><td>LTR/RTL/embedding marks flagged</td></tr>
+<tr><td>5</td><td>Soft Hyphens</td><td>4</td><td>N/A</td><td>Fingerprinting markers flagged</td></tr>
+</table>
+
+<h2>Notes</h2>
+<ul>
+<li>All payloads use HTML numeric character references for encoding portability.</li>
+<li>Test 3 encodes "SMUGGLED" as 8 ASCII bytes = 64 bits using ZWSP (U+200B) as 0 and ZWNJ (U+200C) as 1.</li>
+<li>Test 1 should produce a Critical suspicion level due to the Unicode Tag run length.</li>
+</ul>
+</body></html>
